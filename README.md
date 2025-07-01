@@ -19,9 +19,9 @@ O sistema é composto por vários microservices, cada um responsável por uma fu
 EcommerceMS/
 └── src/                     # Código dos microsserviços
     ├── IdentityServer/      # Autenticação e gestão de usuários (JWT + IdentityServer)
-    ├── ProdutoApi/          # Gestão de produtos, categorias, estoque e preços
-    ├── CartApi/             # Carrinho de compras
-    ├── DescontoApi/         # Cupons e regras de desconto
+    ├── CMShop.ProductAPI/   # Gestão de produtos, categorias, estoque e preços
+    ├── CMShop.CartAPI/      # Carrinho de compras
+    ├── CMShop.DescontApi/   # Cupons e regras de desconto
     ├── PedidoApi/           # Processamento e status dos pedidos
     ├── PagamentoApi/        # Processamento de pagamentos (Pix, Cartão, Boleto)
     ├── ClienteApi/          # Cadastro, login e informações de clientes
