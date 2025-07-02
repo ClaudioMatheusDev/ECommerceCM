@@ -1,4 +1,13 @@
+using CMShop.ProductAPI.Model.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connection = builder.Configuration["SqlContext:SqlConnectionString"];
+
+builder.Services.AddDbContext<SqlContext>(options =>
+    options.UseSqlServer(connection));
 
 // Add services to the container.
 
@@ -8,6 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
