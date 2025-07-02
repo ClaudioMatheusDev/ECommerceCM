@@ -9,5 +9,7 @@ namespace CMShop.ProductAPI.Model.Context
         public SqlContext(){}
 
         public SqlContext(DbContextOptions<SqlContext> options) : base(options) { }
+
+        public DbSet<Product> Products { get; set; }
     }
 }
