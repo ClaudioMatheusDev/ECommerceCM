@@ -1,4 +1,7 @@
+using AutoMapper;
+using CMShop.ProductAPI.Config;
 using CMShop.ProductAPI.Model.Context;
+using CMShop.ProductAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -8,6 +11,12 @@ var connection = builder.Configuration["SqlContext:SqlConnectionString"];
 
 builder.Services.AddDbContext<SqlContext>(options =>
     options.UseSqlServer(connection));
+
+IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // Add services to the container.
 
