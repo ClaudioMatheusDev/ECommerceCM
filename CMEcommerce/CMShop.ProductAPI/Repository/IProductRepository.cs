@@ -2,7 +2,7 @@
 
 namespace CMShop.ProductAPI.Repository
 {
-    public interface IPodructRepository
+    public interface IProductRepository
     {
         Task<IEnumerable<ProductVO>> FindAll();
         Task<ProductVO> FindById(long id);
