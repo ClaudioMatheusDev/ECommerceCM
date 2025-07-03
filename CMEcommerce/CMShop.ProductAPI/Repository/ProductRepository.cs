@@ -24,7 +24,7 @@ namespace CMShop.ProductAPI.Repository
 
         public async Task<ProductVO> FindById(long id)
         {
-            Product product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
+            Product product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync() ?? new Product();
             return _mapper.Map<ProductVO>(product);
         }
 
@@ -48,9 +48,9 @@ namespace CMShop.ProductAPI.Repository
             {
                 Product product = await _context.Products
                     .Where(p => p.Id == id)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync() ?? new Product();
 
-                if (product == null)
+                if (product.Id <= 0)
                     return false; 
 
                 _context.Products.Remove(product);
