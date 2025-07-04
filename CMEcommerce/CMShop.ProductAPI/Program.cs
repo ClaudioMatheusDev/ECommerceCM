@@ -24,10 +24,13 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 // Configurar CORS para aceitar requisições do frontend React
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3000") // URL do React
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins(
+            "http://localhost:3000", // React
+            "http://localhost:5155"  // Swagger
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 // Adicionar controllers
