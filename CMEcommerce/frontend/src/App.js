@@ -1,31 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import Produtos from './pages/Produto';
 
 function App() {
-  const [produtos, setProdutos] = useState([]);
-  const [erro, setErro] = useState(null);
-
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/product`)
-      .then(response => setProdutos(response.data))
-      .catch(error => setErro(error.message));
-  }, []);
-
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Produtos da API</h1>
-      {erro && <p style={{ color: 'red' }}>Erro: {erro}</p>}
-      <ul>
-        {produtos.map(prod => (
-          <li key={prod.id}>
-            <strong>{prod.name}</strong> - R$ {prod.price.toFixed(2)}
-            <br />
-            <img src={prod.imageURL} alt={prod.name} width={150} />
-            <p>{prod.description}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <nav style={{ padding: '1rem', background: '#eee' }}>
+        <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
+        <Link to="/produto">Produtos</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/produto" element={<Produtos />} />
+      </Routes>
+    </Router>
   );
 }
 
