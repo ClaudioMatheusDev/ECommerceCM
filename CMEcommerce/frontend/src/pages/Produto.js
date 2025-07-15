@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { findAllProduct } from '../services/ProductService';
 
 function Produtos() {
   const [produtos, setProdutos] = useState([]);
   const [erro, setErro] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/product`)
-      .then(response => setProdutos(response.data))
-      .catch(error => setErro(error.message));
+    findAllProduct()
+      .then(data => setProdutos(data))
+      .catch(error => setErro(error.message))
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) return <p>Carregando...</p>;
+  if (erro) return <p style={{ color: 'red' }}>Erro: {erro}</p>;
 
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Produtos da API</h1>
-      {erro && <p style={{ color: 'red' }}>Erro: {erro}</p>}
       <ul>
         {produtos.map(prod => (
           <li key={prod.id}>
