@@ -1,0 +1,44 @@
+/* Produtos - Loja Moderna */
+.produtos-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+.produtos-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 1px;
+}
+
+.produtos-empty {
+  color: #64748b;
+  font-size: 1rem;
+  padding: 1.2rem 0;
+}
+
+/* Botões de ação */
+.produtos-btn {
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 0.97rem;
+  padding: 0.38rem 0.9rem;
+  transition: background 0.18s, color 0.18s;
+}
+.produtos-btn-edit {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+.produtos-btn-edit:hover {
+  background: #1d4ed8;
+}
+.produtos-btn-delete {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+}
+.produtos-btn-delete:hover {
+  background: #b91c1c;
+}
