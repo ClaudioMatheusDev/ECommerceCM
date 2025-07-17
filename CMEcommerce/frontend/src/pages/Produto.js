@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { findAllProduct } from '../services/ProductService';
 import '../styles/Produtos.css';
 
@@ -21,9 +22,9 @@ function Produtos() {
             <h1 className="produtos-title">Produtos</h1>
           </div>
           <div className="col text-end pt-1">
-            <a href="/product-create" className="btn btn-outline-primary" title="Criar novo produto">
-              <i className="fas fa-plus"></i> Create New Product
-            </a>
+          <Link to="/ProdutoForm" className="btn btn-outline-primary" title="Criar novo produto">
+            <i className="fas fa-plus"></i> Create New Product
+          </Link>
           </div>
         </div>
         {loading && (
