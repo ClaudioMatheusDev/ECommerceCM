@@ -37,10 +37,26 @@ namespace CMShop.ProductAPI.Repository
         }
         public async Task<ProductVO> Update(ProductVO vo)
         {
-            Product product = _mapper.Map<Product>(vo);
-            _context.Products.Update(product);
+            // Verificar se o produto existe
+            var existingProduct = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == vo.Id);
+            
+            if (existingProduct == null)
+            {
+                throw new Exception($"Produto com ID {vo.Id} não encontrado");
+            }
+            
+            // Atualizar apenas as propriedades necessárias
+            existingProduct.Name = vo.Name;
+            existingProduct.CategoryName = vo.CategoryName;
+            existingProduct.Description = vo.Description;
+            existingProduct.ImageURL = vo.ImageURL;
+            existingProduct.Price = vo.Price;
+            
+            _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ProductVO>(product);
+            
+            return _mapper.Map<ProductVO>(existingProduct);
         }
         public async Task<bool> Delete(long id)
         {

@@ -36,12 +36,34 @@ namespace CMShop.ProductAPI.Controllers
             return Ok(product);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<ProductVO>> Update(ProductVO vo)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ProductVO>> Update(long id, [FromBody] ProductVO vo)
         {
-            if (vo == null) return BadRequest();
-            var product = await _repository.Update(vo);
-            return Ok(product);
+            try
+            {
+                Console.WriteLine($"PUT Request received - ID: {id}, Product: {vo?.Name}");
+                
+                if (vo == null) 
+                {
+                    Console.WriteLine("Product data is null");
+                    return BadRequest("Dados do produto são obrigatórios");
+                }
+                
+                if (id != vo.Id) 
+                {
+                    Console.WriteLine($"ID mismatch - URL: {id}, Body: {vo.Id}");
+                    return BadRequest("ID do produto não confere");
+                }
+                
+                var product = await _repository.Update(vo);
+                Console.WriteLine($"Product updated successfully: {product.Name}");
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating product: {ex.Message}");
+                return NotFound(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
