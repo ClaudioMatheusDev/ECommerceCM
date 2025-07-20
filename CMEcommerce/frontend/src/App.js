@@ -5,7 +5,6 @@ import Produtos from './pages/Produto';
 import CreateProduct from './pages/CreateProduct';
 import UpdateProduct from './pages/UpdateProduct';
 import DeleteProduct from './pages/DeleteProduct';
-import ProdutoForm from './pages/ProdutoForm';
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
         <Route path="/product-create" element={<CreateProduct />} />
         <Route path="/product-update/:id" element={<UpdateProduct />} />
         <Route path="/product-delete/:id" element={<DeleteProduct />} />
-        <Route path="/ProdutoForm" element={<ProdutoForm />} />
       </Routes>
     </Router>
   );

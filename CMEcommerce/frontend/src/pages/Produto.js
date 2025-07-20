@@ -29,9 +29,6 @@ function Produtos() {
                 <i className="fas fa-plus me-2"></i>
                 Novo Produto
               </a>
-              <Link to="/ProdutoForm" className="btn btn-outline-light" title="Formulário alternativo">
-                <i className="fas fa-plus"></i> Produto Form
-              </Link>
             </div>
           </div>
         </div>
