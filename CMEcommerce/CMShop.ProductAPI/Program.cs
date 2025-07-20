@@ -3,38 +3,55 @@ using CMShop.ProductAPI.Config;
 using CMShop.ProductAPI.Model.Context;
 using CMShop.ProductAPI.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Obter a string de conexão do appsettings.json
 var connection = builder.Configuration["SqlContext:SqlConnectionString"];
 
+// Configurar o DbContext com SQL Server
 builder.Services.AddDbContext<SqlContext>(options =>
     options.UseSqlServer(connection));
 
+// Configurar AutoMapper
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// Registrar o repositório de produtos
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
-// Add services to the container.
+// Configurar CORS para aceitar requisições do frontend React
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins(
+            "http://localhost:3000", // React
+            "http://localhost:5155"  // Swagger
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
 
+// Adicionar controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Configurar Swagger (opcional, para documentação)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
-
-// Configure the HTTP request pipeline.
+// Configuração do pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Usar CORS com a política definida
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
