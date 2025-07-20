@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { findAllProduct } from '../services/ProductService';
 import '../styles/Produtos.css';
 
@@ -19,15 +20,18 @@ function Produtos() {
       <div className="container">
         <div className="produtos-header">
           <div className="row align-items-center">
-            <div className="col-md-8">
+            <div className="col-md-6">
               <h1 className="produtos-title">Lista de Produtos</h1>
               <p className="text-white-50 mb-0">Gerencie seu catálogo de produtos</p>
             </div>
-            <div className="col-md-4 text-end">
-              <a href="/product-create" className="produtos-create-btn" title="Criar novo produto">
+            <div className="col-md-6 text-end">
+              <a href="/product-create" className="produtos-create-btn me-2" title="Criar novo produto">
                 <i className="fas fa-plus me-2"></i>
                 Novo Produto
               </a>
+              <Link to="/ProdutoForm" className="btn btn-outline-light" title="Formulário alternativo">
+                <i className="fas fa-plus"></i> Produto Form
+              </Link>
             </div>
           </div>
         </div>
