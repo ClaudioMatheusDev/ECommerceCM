@@ -15,59 +15,94 @@ function Produtos() {
   }, []);
 
   return (
-    <div className="produtos-container container p-4">
-        <div className="row pb-2 align-items-center">
-          <div className="col">
-            <h1 className="produtos-title">Produtos</h1>
-          </div>
-          <div className="col text-end pt-1">
-            <a href="/product-create" className="btn btn-outline-primary" title="Criar novo produto">
-              <i className="fas fa-plus"></i> Create New Product
-            </a>
-          </div>
-        </div>
-        {loading && (
-          <div className="text-center my-4">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Carregando...</span>
+    <div className="produtos-container container-fluid">
+      <div className="container">
+        <div className="produtos-header">
+          <div className="row align-items-center">
+            <div className="col-md-8">
+              <h1 className="produtos-title">Lista de Produtos</h1>
+              <p className="text-white-50 mb-0">Gerencie seu catálogo de produtos</p>
+            </div>
+            <div className="col-md-4 text-end">
+              <a href="/product-create" className="produtos-create-btn" title="Criar novo produto">
+                <i className="fas fa-plus me-2"></i>
+                Novo Produto
+              </a>
             </div>
           </div>
-        )}
-        {erro && <p className="text-danger text-center">{erro}</p>}
-        <div className="table-responsive mt-4">
-          <table className="table table-striped table-hover align-middle border rounded shadow-sm bg-white">
-            <thead className="table-light">
-              <tr>
-                <th>Nome</th>
-                <th>Categoria</th>
-                <th>Preço</th>
-                <th className="text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {produtos.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={4} className="text-center produtos-empty">Nenhum produto cadastrado.</td>
-                </tr>
-              )}
-              {produtos.map(item => (
-                <tr key={item.id} style={{ verticalAlign: 'middle', borderBottom: '12px solid #f3f3f3', background: '#fff' }}>
-                  <td style={{ padding: '18px 12px' }}>{item.name}</td>
-                  <td style={{ padding: '18px 12px' }}>{item.categoryName}</td>
-                  <td style={{ padding: '18px 12px' }}>{item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                  <td className="text-center" style={{ padding: '18px 12px' }}>
-                    <a href={`/product-update/${item.id}`} className="btn btn-sm btn-outline-primary me-3" style={{ minWidth: 70 }} title="Editar">
-                      Editar
-                    </a>
-                    <a href={`/product-delete/${item.id}`} className="btn btn-sm btn-outline-danger" style={{ minWidth: 70 }} title="Excluir">
-                      Excluir
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
+
+        {loading && (
+          <div className="produtos-loading text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Carregando produtos...</span>
+            </div>
+            <p className="mt-3 text-muted">Carregando produtos...</p>
+          </div>
+        )}
+
+        {erro && (
+          <div className="alert alert-danger" role="alert">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            {erro}
+          </div>
+        )}
+
+        {!loading && !erro && (
+          <div className="produtos-table-container">
+            <table className="produtos-table table table-hover">
+              <thead>
+                <tr>
+                  <th>Nome do Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th className="text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {produtos.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="produtos-empty">
+                      <i className="fas fa-box-open fs-1 text-muted mb-3 d-block"></i>
+                      Nenhum produto cadastrado ainda.
+                      <br />
+                      <small className="text-muted">Comece adicionando seu primeiro produto!</small>
+                    </td>
+                  </tr>
+                ) : (
+                  produtos.map(item => (
+                    <tr key={item.id} className="produtos-table-row">
+                      <td>
+                        <div className="produtos-name">{item.name}</div>
+                      </td>
+                      <td>
+                        <span className="produtos-category">{item.categoryName}</span>
+                      </td>
+                      <td>
+                        <div className="produtos-price">
+                          {item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="produtos-actions">
+                          <a href={`/product-update/${item.id}`} className="produtos-btn produtos-btn-edit" title="Editar produto">
+                            <i className="fas fa-edit me-1"></i>
+                            Editar
+                          </a>
+                          <a href={`/product-delete/${item.id}`} className="produtos-btn produtos-btn-delete" title="Excluir produto">
+                            <i className="fas fa-trash me-1"></i>
+                            Excluir
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
