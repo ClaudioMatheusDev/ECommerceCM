@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace CMShop.IdentityServer.Configuration
 {
@@ -15,7 +16,7 @@ namespace CMShop.IdentityServer.Configuration
         /// <summary>
         /// Nome do papel para clientes.
         /// </summary>
-        public const string Customer = "Customer";
+        public const string Client = "Client";
 
         /// <summary>
         /// Define os recursos de identidade disponíveis para o IdentityServer.
@@ -34,6 +35,7 @@ namespace CMShop.IdentityServer.Configuration
         public static IEnumerable<ApiScope> ApiScopes => new List<ApiScope>
            {
                new ApiScope("cmshop", "Servidor CMShop"), // Escopo para o servidor CMShop.
+               new ApiScope("product", "API de Produtos"), // Escopo para a API de Produtos.
                new ApiScope(name: "read", "Ler dados."), // Escopo para leitura de dados.
                new ApiScope(name: "write", "Escrever dados."), // Escopo para escrita de dados.
                new ApiScope(name: "delete", "Excluir dados.") // Escopo para exclusão de dados.
@@ -49,7 +51,22 @@ namespace CMShop.IdentityServer.Configuration
                    ClientId = "client", // Identificador único para o cliente.
                    ClientSecrets = { new Secret("my_super_secret".Sha256()) }, // Segredo para autenticação do cliente.
                    AllowedGrantTypes = GrantTypes.ClientCredentials, // Tipo de concessão para credenciais do cliente.
-                   AllowedScopes = { "cmshop", "read", "write", "delete" } // Escopos que o cliente tem permissão para acessar.
+                   AllowedScopes = { "cmshop", "product", "read", "write", "delete" } // Escopos que o cliente tem permissão para acessar.
+               },
+               new Client
+               {
+                  ClientId = "cmshopping", // Identificador único do cliente.  
+                  ClientSecrets = { new Secret("my_super_secret".Sha256()) }, // Segredo utilizado para autenticação do cliente.  
+                  AllowedGrantTypes = GrantTypes.Code, // Tipo de concessão utilizado para autenticação do cliente.  
+                  RedirectUris = {"https://localhost:7101/signin-oidc", "http://localhost:3000/signin-oidc" }, // URI para onde o cliente será redirecionado após a autenticação.  
+                  PostLogoutRedirectUris = {"https://localhost:7101/signout-callback-oidc", "http://localhost:3000/signout-callback-oidc" }, // URI para onde o cliente será redirecionado após o logout.  
+                  AllowedScopes = new List<string>{
+                      IdentityServerConstants.StandardScopes.OpenId, // Escopo padrão do OpenID Connect, utilizado para autenticação.  
+                      IdentityServerConstants.StandardScopes.Profile, // Escopo que permite acesso às informações de perfil do usuário.  
+                      IdentityServerConstants.StandardScopes.Email, // Escopo que permite acesso ao endereço de email do usuário.  
+                      "cmshop", // Escopo personalizado para o cliente "cmshop".
+                      "product" // Escopo para acesso à API de produtos.
+                  } // Lista de escopos que o cliente tem permissão para acessar.  
                }
            };
     }
