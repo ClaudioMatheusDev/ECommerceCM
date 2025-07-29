@@ -2,7 +2,13 @@ import axios from "axios";
 import { API_URL } from "../config/api";
 import AuthService from "./AuthService";
 
+// Usando o API Gateway - as rotas agora são /gateway/product e /gateway/products
 const API_BASE = `${API_URL}/product`;
+const API_PRODUCTS = `${API_URL}/products`;
+
+if (process.env.NODE_ENV === 'development') {
+  process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+}
 
 // Criar interceptor para adicionar token automaticamente nas requisições que precisam
 const createAuthenticatedRequest = () => {
@@ -15,9 +21,10 @@ const createAuthenticatedRequest = () => {
 
 export async function findAllProduct() {
   try {
-    const response = await axios.get(API_BASE);
+    const response = await axios.get(API_PRODUCTS);
     return response.data;
   } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
     throw new Error(error.response?.data?.message || "Erro ao buscar produtos");
   }
 }
