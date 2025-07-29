@@ -2,7 +2,6 @@ using CMShop.IdentityServer.Configuration;
 using CMShop.IdentityServer.Initializer;
 using CMShop.IdentityServer.Model;
 using CMShop.IdentityServer.Model.Context;
-using CMShop.IdentityServer.Pages;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,17 +25,16 @@ builder.Services.AddCors(options =>
         .AllowCredentials());
 });
 
-// Comentado - não necessário para TestUsers em desenvolvimento
-// var connection = builder.Configuration["SqlContext:SqlConnectionString"];
+var connection = builder.Configuration["SqlContext:SqlConnectionString"];
 
 // Configurar o DbContext com SQL Server
-// builder.Services.AddDbContext<SqlContext>(options =>
-//     options.UseSqlServer(connection));
+builder.Services.AddDbContext<SqlContext>(options =>
+    options.UseSqlServer(connection));
 
-// Comentado para usar apenas TestUsers em desenvolvimento
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//     .AddEntityFrameworkStores<SqlContext>()
-//     .AddDefaultTokenProviders();
+// Configurar ASP.NET Core Identity para usuários reais
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<SqlContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddIdentityServer(options =>
 {
@@ -48,12 +46,11 @@ builder.Services.AddIdentityServer(options =>
 }).AddInMemoryIdentityResources(IdentityConfiguration.IdentityResource)
      .AddInMemoryClients(IdentityConfiguration.Clients)
      .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
-     .AddTestUsers(TestUsers.Users) // Usuários de teste em memória
-     // Removido .AddAspNetIdentity<ApplicationUser>() para evitar conflito com TestUsers
+     .AddAspNetIdentity<ApplicationUser>() // Usar ASP.NET Core Identity
      .AddDeveloperSigningCredential(); 
 
-// Removido serviço DbInitializer - não necessário para TestUsers
-// builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+// Configurar serviço para inicializar banco e usuários
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 
 var app = builder.Build();
@@ -76,12 +73,12 @@ app.UseIdentityServer();
 
 app.UseAuthorization();
 
-// Comentado - não necessário para TestUsers
-// using (var scope = app.Services.CreateScope())
-// {
-//     var initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-//     initializer.Initialize();
-// }
+// Inicializar banco de dados e usuários padrão
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+    initializer.Initialize();
+}
 
 app.MapControllerRoute(
     name: "default",
