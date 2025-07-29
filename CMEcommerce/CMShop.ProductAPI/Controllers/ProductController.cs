@@ -1,5 +1,7 @@
 ﻿using CMShop.ProductAPI.Data.ValueObjects;
 using CMShop.ProductAPI.Repository;
+using CMShop.ProductAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +16,20 @@ namespace CMShop.ProductAPI.Controllers
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
+
+        /// <summary>
+        /// Buscar todos os produtos - Acesso público (não precisa estar logado)
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductVO>>> FindAll()
         {
             var products = await _repository.FindAll();
             return Ok(products);
         }
+
+        /// <summary>
+        /// Buscar produto por ID - Acesso público (não precisa estar logado)
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductVO>> FindById(long id)
         {
@@ -28,7 +38,11 @@ namespace CMShop.ProductAPI.Controllers
             return Ok(product);
         }
 
+        /// <summary>
+        /// Criar novo produto - Apenas Admins podem criar produtos
+        /// </summary>
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<ProductVO>> Create(ProductVO vo)
         {
             if (vo == null) return BadRequest();
@@ -36,7 +50,11 @@ namespace CMShop.ProductAPI.Controllers
             return Ok(product);
         }
 
+        /// <summary>
+        /// Atualizar produto - Apenas Admins podem atualizar produtos
+        /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<ProductVO>> Update(long id, [FromBody] ProductVO vo)
         {
             try
@@ -66,7 +84,11 @@ namespace CMShop.ProductAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletar produto - Apenas Admins podem deletar produtos
+        /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Delete(long id)
         {
             var status = await _repository.Delete(id);

@@ -58,15 +58,37 @@ namespace CMShop.IdentityServer.Configuration
                   ClientId = "cmshopping", // Identificador único do cliente.  
                   ClientSecrets = { new Secret("my_super_secret".Sha256()) }, // Segredo utilizado para autenticação do cliente.  
                   AllowedGrantTypes = GrantTypes.Code, // Tipo de concessão utilizado para autenticação do cliente.  
-                  RedirectUris = {"https://localhost:7101/signin-oidc", "http://localhost:3000/signin-oidc" }, // URI para onde o cliente será redirecionado após a autenticação.  
-                  PostLogoutRedirectUris = {"https://localhost:7101/signout-callback-oidc", "http://localhost:3000/signout-callback-oidc" }, // URI para onde o cliente será redirecionado após o logout.  
+                  RedirectUris = {
+                      "http://localhost:3000/callback", 
+                      "https://localhost:3000/callback",
+                      "https://localhost:7101/callback"
+                  }, // URI para onde o cliente será redirecionado após a autenticação.  
+                  PostLogoutRedirectUris = {
+                      "http://localhost:3000", 
+                      "https://localhost:3000",
+                      "https://localhost:7101"
+                  }, // URI para onde o cliente será redirecionado após o logout.  
                   AllowedScopes = new List<string>{
                       IdentityServerConstants.StandardScopes.OpenId, // Escopo padrão do OpenID Connect, utilizado para autenticação.  
                       IdentityServerConstants.StandardScopes.Profile, // Escopo que permite acesso às informações de perfil do usuário.  
                       IdentityServerConstants.StandardScopes.Email, // Escopo que permite acesso ao endereço de email do usuário.  
                       "cmshop", // Escopo personalizado para o cliente "cmshop".
                       "product" // Escopo para acesso à API de produtos.
-                  } // Lista de escopos que o cliente tem permissão para acessar.  
+                  }, // Lista de escopos que o cliente tem permissão para acessar.
+                  
+                  // Configurações adicionais para melhor compatibilidade
+                  RequireConsent = false, // Não exigir tela de consentimento
+                  RequirePkce = false, // Não exigir PKCE para simplificar
+                  AllowOfflineAccess = true, // Permitir refresh tokens
+                  AccessTokenLifetime = 3600, // Token válido por 1 hora
+                  IdentityTokenLifetime = 300, // ID token válido por 5 minutos
+                  
+                  // Permitir CORS para o frontend
+                  AllowedCorsOrigins = {
+                      "http://localhost:3000",
+                      "https://localhost:3000",
+                      "https://localhost:7101"
+                  }
                }
            };
     }
