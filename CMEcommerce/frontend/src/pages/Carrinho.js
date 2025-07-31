@@ -6,10 +6,13 @@ import '../styles/Carrinho.css';
 function Carrinho() {
   const { 
     items, 
+    loading,
+    error,
     removeFromCart, 
     updateQuantity, 
     clearCart, 
-    getCartTotal 
+    getCartTotal,
+    refreshCart
   } = useCart();
 
   const formatPrice = (price) => {
@@ -19,18 +22,35 @@ function Carrinho() {
     }).format(price);
   };
 
-  const handleQuantityChange = (productId, newQuantity) => {
+  const handleQuantityChange = (itemId, newQuantity) => {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(itemId);
     } else {
-      updateQuantity(productId, newQuantity);
+      updateQuantity(itemId, newQuantity);
     }
   };
 
+  const handleRemoveItem = (itemId) => {
+    removeFromCart(itemId);
+  };
   const handleCheckout = () => {
     alert('Funcionalidade de checkout será implementada em breve!');
   };
 
+  const handleRefresh = () => {
+    refreshCart();
+  };
+
+  if (loading) {
+    return (
+      <div className="carrinho-page">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Carregando carrinho...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="carrinho-page">
       {/* Header */}
@@ -48,6 +68,14 @@ function Carrinho() {
                   : `${items.length} item${items.length !== 1 ? 's' : ''} no carrinho`
                 }
               </p>
+              {error && (
+                <div className="error-message">
+                  <span>⚠️ {error}</span>
+                  <button onClick={handleRefresh} className="refresh-btn">
+                    Tentar novamente
+                  </button>
+                </div>
+              )}
             </div>
             <div className="header-actions">
               <Link to="/loja" className="btn btn-secondary">
@@ -93,22 +121,26 @@ function Carrinho() {
                 {items.map((item) => (
                   <div key={item.id} className="cart-item">
                     <div className="item-image">
-                      <span className="item-icon">📱</span>
+                      {item.productImage ? (
+                        <img src={item.productImage} alt={item.productName} />
+                      ) : (
+                        <span className="item-icon">📱</span>
+                      )}
                     </div>
                     
                     <div className="item-details">
-                      <h4 className="item-name">{item.name}</h4>
+                      <h4 className="item-name">{item.productName}</h4>
                       <p className="item-category">
-                        📂 {item.categoryName || 'Categoria'}
+                        📂 Produto
                       </p>
                       <p className="item-description">
-                        {item.description?.substring(0, 80)}...
+                        Item adicionado ao carrinho
                       </p>
                     </div>
                     
                     <div className="item-price">
                       <span className="price-label">Preço Unitário</span>
-                      <span className="price-value">{formatPrice(item.price)}</span>
+                      <span className="price-value">{formatPrice(item.productPrice)}</span>
                     </div>
                     
                     <div className="item-quantity">
@@ -133,14 +165,14 @@ function Carrinho() {
                     <div className="item-total">
                       <span className="total-label">Subtotal</span>
                       <span className="total-value">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.productPrice * item.quantity)}
                       </span>
                     </div>
                     
                     <div className="item-actions">
                       <button 
                         className="remove-btn"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => handleRemoveItem(item.id)}
                         title="Remover item"
                       >
                         🗑️

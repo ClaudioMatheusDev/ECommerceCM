@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { findAllProduct } from '../services/ProductService';
+import CartAdminPanel from '../components/CartAdminPanel';
 import '../styles/AdminDashboard.css';
 
 function AdminDashboard() {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
+  const [activeTab, setActiveTab] = useState('products'); // 'products' ou 'carts'
   const [stats, setStats] = useState({
     total: 0,
     lowPrice: 0,
@@ -63,6 +65,28 @@ function AdminDashboard() {
               <span className="btn-icon">🛍️</span>
               Ver Loja
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="admin-tabs">
+        <div className="container">
+          <div className="tabs-nav">
+            <button 
+              className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`}
+              onClick={() => setActiveTab('products')}
+            >
+              <span className="tab-icon">📦</span>
+              Produtos
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'carts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('carts')}
+            >
+              <span className="tab-icon">🛒</span>
+              Carrinhos
+            </button>
           </div>
         </div>
       </div>
@@ -127,7 +151,7 @@ function AdminDashboard() {
           </div>
         )}
 
-        {!loading && !erro && (
+        {!loading && !erro && activeTab === 'products' && (
           <div className="products-management">
             <div className="section-header">
               <h2 className="section-title">
@@ -219,6 +243,11 @@ function AdminDashboard() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Cart Admin Panel Tab */}
+        {activeTab === 'carts' && (
+          <CartAdminPanel />
         )}
       </div>
     </div>

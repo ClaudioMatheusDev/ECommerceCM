@@ -39,3 +39,9 @@ EcommerceMS/
 ├── docker-compose.yml       # Orquestração de serviços com Docker
 ├── README.md                # Documentação inicial do projeto
 └── CHANGELOG.md             # Histórico de mudanças
+```
+Para rodar todos os microserviços 
+utilizar 
+```
+.\start-all-services.bat
+```
