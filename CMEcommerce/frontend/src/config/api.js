@@ -4,6 +4,7 @@ export const API_URL = process.env.REACT_APP_API_URL || 'https://localhost:7101/
 // URLs diretas dos microserviços (para desenvolvimento/debug)
 export const DIRECT_APIS = {
   PRODUCT_API: 'https://localhost:7199/api',
+  CART_API: 'https://localhost:7201/api',
   IDENTITY_SERVER: 'https://localhost:7000',
   API_GATEWAY: 'https://localhost:7101'
 };
