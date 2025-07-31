@@ -27,6 +27,7 @@ function App() {
               <div className="nav-links">
                 <Link to="/" className="nav-link">Início</Link>
                 <Link to="/loja" className="nav-link">Loja</Link>
+                <Link to="/login" className="nav-link">Login</Link>
                 <Link to="/admin" className="nav-link admin-link">Admin</Link>
                 <Link to="/carrinho" className="nav-link cart-link">
                   🛒 Carrinho
@@ -67,8 +68,8 @@ function App() {
               </div>
               <div className="footer-section">
                 <h4>Contato</h4>
-                <p>contato@cmecommerce.com</p>
-                <p>(11) 9999-9999</p>
+                <p>claudiomatheus055@gmail.com</p>
+                <p>(18) 9999-9999</p>
               </div>
             </div>
             <div className="footer-bottom">
