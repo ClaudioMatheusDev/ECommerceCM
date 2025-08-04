@@ -2,9 +2,9 @@ import axios from "axios";
 import { API_URL } from "../config/api";
 import AuthService from "./AuthService";
 
-// Usando o API Gateway - as rotas agora são /gateway/product e /gateway/products
-const API_BASE = `${API_URL}/product`;
-const API_PRODUCTS = `${API_URL}/products`;
+// Usando o API Gateway - as rotas são /gateway/products e /gateway/product/{id}
+const API_BASE_LIST = `${API_URL}/products`; // Para listar todos os produtos
+const API_BASE_SINGLE = `${API_URL}/product`; // Para operações em produto específico
 
 if (process.env.NODE_ENV === 'development') {
   process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -21,7 +21,7 @@ const createAuthenticatedRequest = () => {
 
 export async function findAllProduct() {
   try {
-    const response = await axios.get(API_PRODUCTS);
+    const response = await axios.get(API_BASE_LIST);
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
@@ -31,7 +31,7 @@ export async function findAllProduct() {
 
 export async function findProductById(id) {
   try {
-    const response = await axios.get(`${API_BASE}/${id}`);
+    const response = await axios.get(`${API_BASE_SINGLE}/${id}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || "Produto não encontrado");
@@ -40,7 +40,7 @@ export async function findProductById(id) {
 
 export async function createProduct(model) {
   try {
-    const response = await axios.post(API_BASE, model, {
+    const response = await axios.post(API_BASE_SINGLE, model, {
       headers: createAuthenticatedRequest()
     });
     return response.data;
@@ -57,7 +57,7 @@ export async function createProduct(model) {
 
 export async function updateProduct(model) {
   try {
-    const response = await axios.put(`${API_BASE}/${model.id}`, model, {
+    const response = await axios.put(`${API_BASE_SINGLE}/${model.id}`, model, {
       headers: createAuthenticatedRequest(),
     });
 
@@ -73,7 +73,7 @@ export async function updateProduct(model) {
       try {
         console.log("PUT não suportado, tentando POST...");
         const response = await axios.post(
-          `${API_BASE}/update/${model.id}`,
+          `${API_BASE_SINGLE}/update/${model.id}`,
           model,
           {
             headers: createAuthenticatedRequest(),
@@ -103,7 +103,7 @@ export async function updateProduct(model) {
 
 export async function deleteProductById(id) {
   try {
-    await axios.delete(`${API_BASE}/${id}`, {
+    await axios.delete(`${API_BASE_SINGLE}/${id}`, {
       headers: createAuthenticatedRequest()
     });
     return true;
