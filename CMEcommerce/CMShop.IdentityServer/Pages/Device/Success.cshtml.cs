@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 
 namespace foo.Pages.Device;
 
@@ -14,3 +15,4 @@ public class SuccessModel : PageModel
     {
     }
 }
+

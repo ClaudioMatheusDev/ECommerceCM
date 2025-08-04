@@ -10,6 +10,7 @@ using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 
 namespace foo.Pages.Consent;
 
@@ -234,3 +235,4 @@ public class Index : PageModel
         };
     }
 }
+

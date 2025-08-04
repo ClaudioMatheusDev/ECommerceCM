@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 using Microsoft.AspNetCore.Authorization;
 
 namespace foo.Pages.Diagnostics;
@@ -32,3 +33,4 @@ public class Index : PageModel
         return Page();
     }
 }
+

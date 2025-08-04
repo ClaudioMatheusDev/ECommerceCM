@@ -9,6 +9,7 @@ using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 
 namespace foo.Pages.Ciba;
 
@@ -226,3 +227,4 @@ public class Consent : PageModel
         };
     }
 }
+

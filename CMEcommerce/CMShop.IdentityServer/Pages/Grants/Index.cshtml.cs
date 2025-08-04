@@ -8,6 +8,7 @@ using Duende.IdentityServer.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 
 namespace foo.Pages.Grants;
 
@@ -80,3 +81,4 @@ public class Index : PageModel
         return RedirectToPage("/Grants/Index");
     }
 }
+

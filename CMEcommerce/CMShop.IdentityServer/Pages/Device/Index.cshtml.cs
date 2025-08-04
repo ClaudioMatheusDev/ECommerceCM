@@ -11,6 +11,7 @@ using foo.Pages.Consent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CMShop.IdentityServer.Pages;
 using Microsoft.Extensions.Options;
 
 namespace foo.Pages.Device;
@@ -218,3 +219,4 @@ public class Index : PageModel
         };
     }
 }
+
