@@ -15,96 +15,146 @@ function Produtos() {
       .finally(() => setLoading(false));
   }, []);
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price);
+  };
+
   return (
-    <div className="produtos-container container-fluid">
-      <div className="container">
-        <div className="produtos-header">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <h1 className="produtos-title">Lista de Produtos</h1>
-              <p className="text-white-50 mb-0">Gerencie seu catálogo de produtos</p>
+    <div className="produtos-page">
+      {/* Header Section */}
+      <div className="produtos-header">
+        <div className="container">
+          <div className="header-content">
+            <div className="header-text">
+              <h1 className="page-title">Nossos Produtos</h1>
+              <p className="page-subtitle">Descubra nossa coleção completa</p>
             </div>
-            <div className="col-md-6 text-end">
-              <a href="/product-create" className="produtos-create-btn me-2" title="Criar novo produto">
-                <i className="fas fa-plus me-2"></i>
-                Novo Produto
-              </a>
-              <Link to="/ProdutoForm" className="btn btn-outline-light" title="Formulário alternativo">
-                <i className="fas fa-plus"></i> Produto Form
+            <div className="header-actions">
+              <Link to="/product-create" className="btn btn-primary">
+                + Novo Produto
               </Link>
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="container produtos-content">
         {loading && (
-          <div className="produtos-loading text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Carregando produtos...</span>
+          <div className="loading-section">
+            <div className="loading-spinner">
+              <div className="spinner"></div>
             </div>
-            <p className="mt-3 text-muted">Carregando produtos...</p>
+            <p>Carregando produtos...</p>
           </div>
         )}
 
         {erro && (
-          <div className="alert alert-danger" role="alert">
-            <i className="fas fa-exclamation-triangle me-2"></i>
-            {erro}
+          <div className="error-section">
+            <div className="error-icon">⚠️</div>
+            <h3>Ops! Algo deu errado</h3>
+            <p>{erro}</p>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => window.location.reload()}
+            >
+              Tentar Novamente
+            </button>
           </div>
         )}
 
         {!loading && !erro && (
-          <div className="produtos-table-container">
-            <table className="produtos-table table table-hover">
-              <thead>
-                <tr>
-                  <th>Nome do Produto</th>
-                  <th>Categoria</th>
-                  <th>Preço</th>
-                  <th className="text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {produtos.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="produtos-empty">
-                      <i className="fas fa-box-open fs-1 text-muted mb-3 d-block"></i>
-                      Nenhum produto cadastrado ainda.
-                      <br />
-                      <small className="text-muted">Comece adicionando seu primeiro produto!</small>
-                    </td>
-                  </tr>
-                ) : (
-                  produtos.map(item => (
-                    <tr key={item.id} className="produtos-table-row">
-                      <td>
-                        <div className="produtos-name">{item.name}</div>
-                      </td>
-                      <td>
-                        <span className="produtos-category">{item.categoryName}</span>
-                      </td>
-                      <td>
-                        <div className="produtos-price">
-                          {item.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          <>
+            {produtos.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">📦</div>
+                <h3>Nenhum produto encontrado</h3>
+                <p>Que tal adicionar o primeiro produto?</p>
+                <Link to="/product-create" className="btn btn-primary">
+                  Criar Primeiro Produto
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Products Stats */}
+                <div className="products-stats">
+                  <div className="stat-card">
+                    <div className="stat-number">{produtos.length}</div>
+                    <div className="stat-label">Produtos</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">
+                      {produtos.filter(p => p.price < 100).length}
+                    </div>
+                    <div className="stat-label">Até R$ 100</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-number">
+                      {produtos.filter(p => p.price >= 100).length}
+                    </div>
+                    <div className="stat-label">Acima R$ 100</div>
+                  </div>
+                </div>
+
+                {/* Products Grid */}
+                <div className="products-grid">
+                  {produtos.map((produto) => (
+                    <div key={produto.id} className="product-card">
+                      <div className="product-image">
+                        <span className="product-icon">📱</span>
+                        <div className="product-badge">
+                          ID: {produto.id}
                         </div>
-                      </td>
-                      <td>
-                        <div className="produtos-actions">
-                          <a href={`/product-update/${item.id}`} className="produtos-btn produtos-btn-edit" title="Editar produto">
-                            <i className="fas fa-edit me-1"></i>
-                            Editar
-                          </a>
-                          <a href={`/product-delete/${item.id}`} className="produtos-btn produtos-btn-delete" title="Excluir produto">
-                            <i className="fas fa-trash me-1"></i>
-                            Excluir
-                          </a>
+                      </div>
+                      
+                      <div className="product-content">
+                        <h3 className="product-title">
+                          {produto.name.length > 60 
+                            ? `${produto.name.substring(0, 60)}...` 
+                            : produto.name}
+                        </h3>
+                        
+                        <p className="product-description">
+                          {produto.description && produto.description.length > 100
+                            ? `${produto.description.substring(0, 100)}...`
+                            : produto.description || 'Sem descrição disponível'}
+                        </p>
+                        
+                        <div className="product-info">
+                          <div className="product-category">
+                            📂 {produto.categoryName || 'Categoria'}
+                          </div>
+                          <div className="product-price">
+                            {formatPrice(produto.price)}
+                          </div>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                        
+                        <div className="product-actions">
+                          <Link 
+                            to={`/product-update/${produto.id}`} 
+                            className="btn btn-sm btn-primary"
+                            title="Editar produto"
+                          >
+                            ✏️ Editar
+                          </Link>
+                          <Link 
+                            to={`/product-delete/${produto.id}`} 
+                            className="btn btn-sm btn-danger"
+                            title="Excluir produto"
+                          >
+                            🗑️ Excluir
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
     </div>
