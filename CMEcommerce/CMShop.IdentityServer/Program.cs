@@ -2,6 +2,7 @@ using CMShop.IdentityServer.Configuration;
 using CMShop.IdentityServer.Initializer;
 using CMShop.IdentityServer.Model;
 using CMShop.IdentityServer.Model.Context;
+using CMShop.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,7 @@ builder.Services.AddIdentityServer(options =>
      .AddInMemoryClients(IdentityConfiguration.Clients)
      .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
      .AddAspNetIdentity<ApplicationUser>() // Usar ASP.NET Core Identity
+     .AddProfileService<ProfileService>() // Adicionar ProfileService customizado
      .AddDeveloperSigningCredential(); 
 
 // Configurar serviço para inicializar banco e usuários

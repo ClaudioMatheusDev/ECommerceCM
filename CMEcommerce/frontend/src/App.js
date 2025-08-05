@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Callback from './components/Callback';
+import UserDebug from './components/UserDebug';
 import Home from './pages/Home';
 import Produtos from './pages/Produto';
 import Loja from './pages/Loja';
@@ -15,6 +16,7 @@ import CreateProduct from './pages/CreateProduct';
 import UpdateProduct from './pages/UpdateProduct';
 import DeleteProduct from './pages/DeleteProduct';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 import AdminProductForm from './pages/AdminProductForm';
 import './App.css';
 
@@ -34,6 +36,7 @@ function App() {
                   <Link to="/" className="nav-link">Início</Link>
                   <Link to="/loja" className="nav-link">Loja</Link>
                   <Link to="/login" className="nav-link">Login</Link>
+                  <Link to="/profile" className="nav-link">Perfil</Link>
                   <Link to="/admin" className="nav-link admin-link">Admin</Link>
                   <Link to="/carrinho" className="nav-link cart-link">
                     🛒 Carrinho
@@ -52,8 +55,10 @@ function App() {
                 <Route path="/carrinho" element={<Carrinho />} />
                 <Route path="/produto/:id" element={<ProdutoDetalhes />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/debug" element={<UserDebug />} />
                 
                 {/* Rotas protegidas apenas para Admin */}
                 <Route path="/admin/produtos/criar" element={
@@ -93,6 +98,7 @@ function App() {
                     <h4>Links Rápidos</h4>
                     <Link to="/">Início</Link>
                     <Link to="/loja">Loja</Link>
+                    <Link to="/profile">Perfil</Link>
                     <Link to="/admin">Admin</Link>
                   </div>
                   <div className="footer-section">

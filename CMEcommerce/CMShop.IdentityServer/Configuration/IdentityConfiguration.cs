@@ -26,7 +26,12 @@ namespace CMShop.IdentityServer.Configuration
             {
                    new IdentityResources.OpenId(), // Recurso de identidade OpenID Connect.
                    new IdentityResources.Email(), // Recurso de identidade de email.
-                   new IdentityResources.Profile() // Recurso de identidade de perfil.
+                   new IdentityResources.Profile(), // Recurso de identidade de perfil.
+                   new IdentityResource(
+                       name: "roles",
+                       displayName: "User roles",
+                       userClaims: new[] { "role" }
+                   ) // Recurso de identidade para papéis/roles.
             };
 
         /// <summary>
@@ -72,6 +77,7 @@ namespace CMShop.IdentityServer.Configuration
                       IdentityServerConstants.StandardScopes.OpenId, // Escopo padrão do OpenID Connect, utilizado para autenticação.  
                       IdentityServerConstants.StandardScopes.Profile, // Escopo que permite acesso às informações de perfil do usuário.  
                       IdentityServerConstants.StandardScopes.Email, // Escopo que permite acesso ao endereço de email do usuário.  
+                      "roles", // Escopo para incluir papéis/roles do usuário.
                       "cmshop", // Escopo personalizado para o cliente "cmshop".
                       "product" // Escopo para acesso à API de produtos.
                   }, // Lista de escopos que o cliente tem permissão para acessar.
@@ -82,6 +88,10 @@ namespace CMShop.IdentityServer.Configuration
                   AllowOfflineAccess = true, // Permitir refresh tokens
                   AccessTokenLifetime = 3600, // Token válido por 1 hora
                   IdentityTokenLifetime = 300, // ID token válido por 5 minutos
+                  
+                  // Configurações críticas para incluir claims no ID token
+                  AlwaysIncludeUserClaimsInIdToken = true, // IMPORTANTE: incluir claims de usuário no ID token
+                  IncludeJwtId = true,
                   
                   // Permitir CORS para o frontend
                   AllowedCorsOrigins = {

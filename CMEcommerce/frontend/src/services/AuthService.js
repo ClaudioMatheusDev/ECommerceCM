@@ -4,7 +4,7 @@ class AuthService {
         this.baseUrl = process.env.REACT_APP_IDENTITY_SERVER_URL || 'https://localhost:7000';
         this.clientId = 'cmshopping';
         this.redirectUri = `${window.location.origin}/callback`;
-        this.scope = 'openid profile email cmshop product';
+        this.scope = 'openid profile email roles cmshop product';
         this.responseType = 'code';
     }
 
@@ -134,11 +134,27 @@ class AuthService {
         try {
             // Decodificar JWT (apenas a parte do payload)
             const payload = JSON.parse(atob(token.split('.')[1]));
+            
+            // Extrair role - pode estar em diferentes formatos
+            let role = null;
+            if (payload.role) {
+                role = Array.isArray(payload.role) ? payload.role : [payload.role];
+            } else if (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
+                const roleClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+                role = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
+            }
+            
+            console.log('Token payload:', payload);
+            console.log('Extracted role:', role);
+            
             return {
                 sub: payload.sub,
                 name: payload.name,
+                given_name: payload.given_name,
+                family_name: payload.family_name,
                 email: payload.email,
-                role: payload.role || []
+                preferred_username: payload.preferred_username,
+                role: role || []
             };
         } catch (error) {
             console.error('Erro ao decodificar token:', error);
@@ -149,13 +165,33 @@ class AuthService {
     // Verificar se é admin
     isAdmin() {
         const userInfo = this.getUserInfo();
-        return userInfo && (userInfo.role.includes('Admin') || userInfo.role === 'Admin');
+        if (!userInfo || !userInfo.role) return false;
+        
+        const roles = Array.isArray(userInfo.role) ? userInfo.role : [userInfo.role];
+        const hasAdminRole = roles.some(role => 
+            role === 'Admin' || 
+            role === 'admin' || 
+            role.toLowerCase() === 'admin'
+        );
+        
+        console.log('Checking isAdmin:', { roles, hasAdminRole });
+        return hasAdminRole;
     }
 
     // Verificar se é cliente
     isClient() {
         const userInfo = this.getUserInfo();
-        return userInfo && (userInfo.role.includes('Client') || userInfo.role === 'Client');
+        if (!userInfo || !userInfo.role) return false;
+        
+        const roles = Array.isArray(userInfo.role) ? userInfo.role : [userInfo.role];
+        const hasClientRole = roles.some(role => 
+            role === 'Client' || 
+            role === 'client' || 
+            role.toLowerCase() === 'client'
+        );
+        
+        console.log('Checking isClient:', { roles, hasClientRole });
+        return hasClientRole;
     }
 
     // Adicionar token às requisições
