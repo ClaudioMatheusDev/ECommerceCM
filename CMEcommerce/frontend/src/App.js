@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Callback from './components/Callback';
 import UserDebug from './components/UserDebug';
+import AuthService from './services/AuthService';
 import Home from './pages/Home';
 import Produtos from './pages/Produto';
 import Loja from './pages/Loja';
@@ -21,6 +22,17 @@ import AdminProductForm from './pages/AdminProductForm';
 import './App.css';
 
 function App() {
+  const isAuthenticated = AuthService.isAuthenticated();
+  const userInfo = AuthService.getUserInfo();
+
+  const handleLogin = () => {
+    AuthService.login();
+  };
+
+  const handleLogout = () => {
+    AuthService.logout();
+  };
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -35,8 +47,17 @@ function App() {
                 <div className="nav-links">
                   <Link to="/" className="nav-link">Início</Link>
                   <Link to="/loja" className="nav-link">Loja</Link>
-                  <Link to="/login" className="nav-link">Login</Link>
-                  <Link to="/profile" className="nav-link">Perfil</Link>
+                  
+                  {!isAuthenticated ? (
+                    <button onClick={handleLogin} className="nav-link nav-btn">Login</button>
+                  ) : (
+                    <>
+                      <span className="nav-user">Olá, {userInfo?.name || userInfo?.preferred_username || 'Usuário'}</span>
+                      <Link to="/profile" className="nav-link">Perfil</Link>
+                      <button onClick={handleLogout} className="nav-link nav-btn">Logout</button>
+                    </>
+                  )}
+                  
                   <Link to="/admin" className="nav-link admin-link">Admin</Link>
                   <Link to="/carrinho" className="nav-link cart-link">
                     🛒 Carrinho

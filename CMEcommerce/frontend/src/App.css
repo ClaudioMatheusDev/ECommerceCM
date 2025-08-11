@@ -62,12 +62,38 @@ body {
   border-radius: 8px;
   transition: all 0.3s ease;
   position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
 .nav-link:hover {
   color: #667eea;
   background: rgba(102, 126, 234, 0.1);
   text-decoration: none;
+}
+
+.nav-btn {
+  background: linear-gradient(45deg, #667eea, #764ba2) !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.nav-btn:hover {
+  background: linear-gradient(45deg, #5a6fd8, #6a4190) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.nav-user {
+  color: #667eea;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 20px;
+  font-size: 0.9rem;
 }
 
 .admin-link {

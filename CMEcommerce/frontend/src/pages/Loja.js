@@ -167,7 +167,20 @@ function Loja() {
                   {produtosFiltrados.map((produto) => (
                     <div key={produto.id} className="product-card">
                       <div className="product-image">
-                        <span className="product-icon">📱</span>
+                        {produto.imageUrl ? (
+                          <img 
+                            src={produto.imageUrl} 
+                            alt={produto.name}
+                            className="product-img"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className="product-icon-fallback" style={{ display: produto.imageUrl ? 'none' : 'flex' }}>
+                          📱
+                        </div>
                         <div className="product-badge">
                           ID: {produto.id}
                         </div>

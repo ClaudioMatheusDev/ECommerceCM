@@ -10,8 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/product/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "Key": "products"
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/api/v1/product",
@@ -23,8 +22,37 @@
         }
       ],
       "UpstreamPathTemplate": "/api/product",
-      "UpstreamHttpMethod": [ "GET", "POST" ],
-      "Key": "products-list"
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/api/cart/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 50
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/api/cart",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
     },
     {
       "DownstreamPathTemplate": "/connect/{everything}",
@@ -36,8 +64,7 @@
         }
       ],
       "UpstreamPathTemplate": "/connect/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST" ],
-      "Key": "identity-server"
+      "UpstreamHttpMethod": [ "GET", "POST" ]
     },
     {
       "DownstreamPathTemplate": "/{everything}",
@@ -49,15 +76,7 @@
         }
       ],
       "UpstreamPathTemplate": "/identity/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST" ],
-      "Key": "identity-pages"
-    }
-  ],
-  "Aggregates": [
-    {
-      "RouteKeys": [ "products", "products-list" ],
-      "UpstreamPathTemplate": "/api/gateway/products",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [ "GET", "POST" ]
     }
   ],
   "GlobalConfiguration": {

@@ -144,9 +144,6 @@ class AuthService {
                 role = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
             }
             
-            console.log('Token payload:', payload);
-            console.log('Extracted role:', role);
-            
             return {
                 sub: payload.sub,
                 name: payload.name,
@@ -174,7 +171,6 @@ class AuthService {
             role.toLowerCase() === 'admin'
         );
         
-        console.log('Checking isAdmin:', { roles, hasAdminRole });
         return hasAdminRole;
     }
 
@@ -190,7 +186,6 @@ class AuthService {
             role.toLowerCase() === 'client'
         );
         
-        console.log('Checking isClient:', { roles, hasClientRole });
         return hasClientRole;
     }
 

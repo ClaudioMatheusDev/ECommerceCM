@@ -1,9 +1,14 @@
 // Login.js - Página de login
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import AuthService from '../services/AuthService';
 
 const Login = () => {
-    const { login, isAuthenticated, user } = useAuth();
+    const isAuthenticated = AuthService.isAuthenticated();
+    const user = AuthService.getUserInfo();
+
+    const handleLogin = () => {
+        AuthService.login();
+    };
 
     if (isAuthenticated) {
         return (
@@ -14,10 +19,10 @@ const Login = () => {
                             <div className="card-body text-center">
                                 <h5 className="card-title">Você já está logado</h5>
                                 <p className="card-text">
-                                    Bem-vindo, <strong>{user?.name || user?.email}</strong>!
+                                    Bem-vindo, <strong>{user?.name || user?.preferred_username || user?.email}</strong>!
                                 </p>
                                 <p className="text-muted">
-                                    Role: {user?.role || 'N/A'}
+                                    Role: {Array.isArray(user?.role) ? user.role.join(', ') : (user?.role || 'N/A')}
                                 </p>
                                 <button 
                                     className="btn btn-primary" 
@@ -46,9 +51,10 @@ const Login = () => {
                                 <p className="mb-4">
                                     Faça login para acessar recursos exclusivos da nossa loja.
                                 </p>
+                                
                                 <button 
                                     className="btn btn-primary btn-lg"
-                                    onClick={login}
+                                    onClick={handleLogin}
                                 >
                                     Entrar com IdentityServer
                                 </button>
