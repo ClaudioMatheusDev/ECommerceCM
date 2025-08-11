@@ -1,5 +1,6 @@
 using CMShop.CartAPI.Data.ValueObjects;
 using CMShop.CartAPI.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMShop.CartAPI.Controllers
@@ -54,10 +55,13 @@ namespace CMShop.CartAPI.Controllers
                     return BadRequest("Carrinho não pode ser nulo");
                 }
 
+                _logger.LogInformation("Recebido request para adicionar/atualizar carrinho: {CartData}", System.Text.Json.JsonSerializer.Serialize(cart));
                 _logger.LogInformation("Adicionando/Atualizando carrinho para usuário: {UserId}", cart.CartHeader?.UserId);
                 
                 var result = await _repository.SaveOrUpdateCart(cart);
-                _logger.LogInformation("Carrinho salvo com sucesso para usuário: {UserId}", cart.CartHeader?.UserId);
+                
+                _logger.LogInformation("Carrinho salvo com sucesso. CartHeader ID: {HeaderId}, Items: {ItemCount}", 
+                    result?.CartHeader?.Id, result?.CartDetails?.Count());
                 
                 return Ok(result);
             }
@@ -68,8 +72,8 @@ namespace CMShop.CartAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao salvar carrinho");
-                return StatusCode(500, "Erro interno do servidor");
+                _logger.LogError(ex, "Erro ao salvar carrinho - Detalhes: {Message}", ex.Message);
+                return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
             }
         }
 

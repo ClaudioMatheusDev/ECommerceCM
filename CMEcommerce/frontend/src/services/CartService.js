@@ -2,7 +2,7 @@ import axios from "axios";
 import { API_URL } from "../config/api";
 import AuthService from "./AuthService";
 
-// Usando o API Gateway - as rotas agora são /cart
+// Usando o API Gateway - as rotas agora são /cart (mapeado para /carts no backend)
 const API_BASE = `${API_URL}/cart`;
 
 if (process.env.NODE_ENV === 'development') {
@@ -84,15 +84,19 @@ export async function addToCart(cartData) {
             price: cartData.productPrice,
             description: cartData.productDescription || "",
             categoryName: cartData.categoryName || "Produto",
-            imageUrl: cartData.productImage
+            imageURL: cartData.productImage
           }
         }
       ]
     };
 
+    console.log('CartService - Enviando dados:', JSON.stringify(cartPayload, null, 2));
+
     const response = await axios.post(API_BASE, cartPayload, {
       headers: createAuthenticatedRequest()
     });
+    
+    console.log('CartService - Resposta recebida:', response.data);
     return response.data;
   } catch (error) {
     console.error('Erro ao adicionar ao carrinho:', error);

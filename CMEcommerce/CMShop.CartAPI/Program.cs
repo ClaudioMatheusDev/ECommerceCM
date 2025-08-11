@@ -2,7 +2,11 @@ using AutoMapper;
 using CMShop.CartAPI.Config;
 using CMShop.CartAPI.Model.Context;
 using CMShop.CartAPI.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +23,43 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Registrar o repositório de carrinho
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+
+// Configurar JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://localhost:7000"; // IdentityServer URL
+        options.RequireHttpsMetadata = false; // Para desenvolvimento
+        options.Audience = "cmshop";
+        
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = "https://localhost:7000",
+            ValidAudience = "cmshop"
+        };
+
+        // Para debug em desenvolvimento
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine($"Token validated for: {context.Principal?.Identity?.Name}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 // Configurar CORS
 builder.Services.AddCors(options =>
@@ -45,6 +86,31 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API de gerenciamento de carrinho de compras"
     });
+    
+    // Configurar autenticação JWT no Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 var app = builder.Build();
@@ -64,6 +130,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+// Adicionar autenticação e autorização
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

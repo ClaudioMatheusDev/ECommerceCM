@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-    const { isAuthenticated, user, login, logout, isAdmin } = useAuth();
+    const { isAuthenticated, user, login, logout, isAdmin, isClient } = useAuth();
 
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary">

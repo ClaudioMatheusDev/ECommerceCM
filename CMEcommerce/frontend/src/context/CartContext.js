@@ -68,7 +68,7 @@ export const CartProvider = ({ children }) => {
       productId: detail.productId,
       productName: detail.product?.name || 'Produto sem nome',
       productPrice: detail.product?.price || 0,
-      productImage: detail.product?.imageUrl || null,
+      productImage: detail.product?.imageURL || detail.product?.imageUrl || null,
       quantity: detail.count || 1,
       categoryName: detail.product?.categoryName || 'Categoria'
     }));
@@ -203,15 +203,23 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (itemId) => {
+    console.log('=== REMOVE FROM CART START ===');
+    console.log('itemId:', itemId);
+    console.log('Current cart items:', state.items);
+    
     if (!isUserAuthenticated()) {
       dispatch({ type: 'SET_ERROR', payload: 'Faça login para remover itens do carrinho' });
       return;
     }
 
     try {
+      console.log('Chamando CartService.removeFromCart...');
       await CartService.removeFromCart(itemId);
+      
+      console.log('Recarregando carrinho...');
       await loadCart(); // Recarregar carrinho após remover
       dispatch({ type: 'SET_ERROR', payload: null });
+      console.log('=== REMOVE FROM CART SUCCESS ===');
     } catch (error) {
       console.error('Erro ao remover do carrinho:', error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -226,7 +234,12 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = async (itemId, quantity) => {
+    console.log('=== UPDATE QUANTITY START ===');
+    console.log('itemId:', itemId, 'quantity:', quantity);
+    console.log('Current cart items:', state.items);
+    
     if (quantity <= 0) {
+      console.log('Quantidade <= 0, chamando removeFromCart');
       await removeFromCart(itemId);
       return;
     }
@@ -239,6 +252,8 @@ export const CartProvider = ({ children }) => {
     try {
       // Para atualização de quantidade, precisamos recriar o carrinho
       const item = state.items.find(item => item.id === itemId);
+      console.log('Item encontrado:', item);
+      
       if (item) {
         const updatedCartData = {
           userId: getUserId(),
@@ -250,13 +265,22 @@ export const CartProvider = ({ children }) => {
           quantity: quantity
         };
         
+        console.log('Dados para atualização:', updatedCartData);
+        
         // Primeiro remove o item atual
+        console.log('Removendo item atual...');
         await CartService.removeFromCart(itemId);
+        
         // Depois adiciona com nova quantidade
+        console.log('Adicionando item com nova quantidade...');
         await CartService.addToCart(updatedCartData);
         
+        console.log('Recarregando carrinho...');
         await loadCart(); // Recarregar carrinho
         dispatch({ type: 'SET_ERROR', payload: null });
+        console.log('=== UPDATE QUANTITY SUCCESS ===');
+      } else {
+        console.log('Item não encontrado!');
       }
     } catch (error) {
       console.error('Erro ao atualizar quantidade:', error);

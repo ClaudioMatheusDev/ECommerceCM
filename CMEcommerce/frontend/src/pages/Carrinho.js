@@ -30,6 +30,8 @@ function Carrinho() {
   };
 
   const handleQuantityChange = (itemId, newQuantity) => {
+    console.log('Alterando quantidade do item:', itemId, 'para:', newQuantity);
+    console.log('Dados completos do item:', items.find(item => item.id === itemId));
     if (newQuantity <= 0) {
       removeFromCart(itemId);
     } else {
@@ -38,6 +40,8 @@ function Carrinho() {
   };
 
   const handleRemoveItem = (itemId) => {
+    console.log('Removendo item do carrinho:', itemId);
+    console.log('Dados completos do item:', items.find(item => item.id === itemId));
     removeFromCart(itemId);
   };
 
