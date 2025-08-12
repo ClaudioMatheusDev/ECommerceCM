@@ -1,17 +1,21 @@
 using AutoMapper;
-using CMShop.CartAPI.Config;
-using CMShop.CartAPI.Model.Context;
-using CMShop.CartAPI.Repository;
-using CMShop.CartAPI.Services;
+using CMShop.CouponAPI.Config;
+using CMShop.CouponAPI.Model.Context;
+using CMShop.CouponAPI.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Obter a string de conexão do appsettings.json
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var connection = builder.Configuration["SqlContext:SqlConnectionString"];
 
 // Configurar o DbContext com SQL Server
@@ -22,12 +26,8 @@ IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Registrar o repositório de carrinho
-builder.Services.AddScoped<ICartRepository, CartRepository>();
-
-// Registrar o serviço de cupom
-builder.Services.AddHttpClient<ICouponService, CouponService>();
-builder.Services.AddScoped<ICouponService, CouponService>();
+// Registrar o reposit�rio de carrinho
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
 // Configurar JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,7 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.Authority = "https://localhost:7000"; // IdentityServer URL
         options.RequireHttpsMetadata = false; // Para desenvolvimento
         options.Audience = "cmshop";
-        
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -87,12 +87,12 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "CM Shop Cart API",
+        Title = "CM Shop Coupon API",
         Version = "v1",
-        Description = "API de gerenciamento de carrinho de compras"
+        Description = "API de gerenciamento de coupon de descontos"
     });
-    
-    // Configurar autenticação JWT no Swagger
+
+    // Configurar autentica��o JWT no Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
@@ -101,7 +101,7 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -124,19 +124,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CM Shop Cart API v1");
-        c.RoutePrefix = string.Empty; // Define swagger na raiz
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
-// Adicionar autenticação e autorização
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

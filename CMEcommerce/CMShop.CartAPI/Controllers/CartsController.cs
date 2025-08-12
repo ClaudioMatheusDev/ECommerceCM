@@ -1,5 +1,6 @@
 using CMShop.CartAPI.Data.ValueObjects;
 using CMShop.CartAPI.Repository;
+using CMShop.CartAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +11,13 @@ namespace CMShop.CartAPI.Controllers
     public class CartsController : ControllerBase
     {
         private ICartRepository _repository;
+        private ICouponService _couponService;
         private readonly ILogger<CartsController> _logger;
 
-        public CartsController(ICartRepository repository, ILogger<CartsController> logger)
+        public CartsController(ICartRepository repository, ICouponService couponService, ILogger<CartsController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _couponService = couponService ?? throw new ArgumentNullException(nameof(couponService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -163,15 +166,28 @@ namespace CMShop.CartAPI.Controllers
 
                 _logger.LogInformation("Aplicando cupom {CouponCode} para usuário: {UserId}", request.CouponCode, request.UserId);
                 
+                // Primeiro valida o cupom no CouponAPI
+                var validationResult = await _couponService.ValidateCouponAsync(request.CouponCode);
+                
+                if (!validationResult.IsValid)
+                {
+                    _logger.LogWarning("Cupom inválido: {CouponCode} - {ErrorMessage}", request.CouponCode, validationResult.ErrorMessage);
+                    return BadRequest(validationResult.ErrorMessage);
+                }
+                
+                // Se o cupom é válido, aplica no carrinho
                 bool success = await _repository.ApplyCoupon(request.UserId, request.CouponCode);
                 if (success)
                 {
-                    _logger.LogInformation("Cupom aplicado com sucesso");
-                    return Ok(new { message = "Cupom aplicado com sucesso" });
+                    _logger.LogInformation("Cupom aplicado com sucesso. Desconto: {DiscountAmount}", validationResult.DiscountAmount);
+                    return Ok(new { 
+                        message = "Cupom aplicado com sucesso",
+                        discountAmount = validationResult.DiscountAmount
+                    });
                 }
                 
                 _logger.LogWarning("Falha ao aplicar cupom para usuário: {UserId}", request.UserId);
-                return BadRequest("Falha ao aplicar cupom");
+                return BadRequest("Falha ao aplicar cupom - carrinho não encontrado");
             }
             catch (Exception ex)
             {

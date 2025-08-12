@@ -81,6 +81,26 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/v1/coupon/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7204
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/coupon/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "coupon",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 30,
+        "PeriodTimespan": 60
+      }
+    },
+    {
       "DownstreamPathTemplate": "/connect/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
