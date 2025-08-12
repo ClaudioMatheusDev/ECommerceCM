@@ -120,6 +120,16 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Aplicar migrations automaticamente em desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+        context.Database.EnsureCreated();
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
