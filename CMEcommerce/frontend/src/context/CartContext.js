@@ -7,9 +7,12 @@ const CartContext = createContext();
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'LOAD_CART':
+      const cartData = action.payload;
       return {
         ...state,
-        items: action.payload || [],
+        items: cartData?.cartDetails || [],
+        couponCode: cartData?.cartHeader?.couponCode || null,
+        discountAmount: cartData?.cartHeader?.discountAmount || 0,
         loading: false,
       };
 
@@ -23,6 +26,8 @@ const cartReducer = (state, action) => {
       return {
         ...state,
         items: [],
+        couponCode: null,
+        discountAmount: 0,
       };
 
     case 'SET_ERROR':
@@ -39,6 +44,8 @@ const cartReducer = (state, action) => {
 
 const initialState = {
   items: [],
+  couponCode: null,
+  discountAmount: 0,
   loading: false,
   error: null,
 };
@@ -92,13 +99,18 @@ export const CartProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: null });
       
       const cartData = await CartService.findCartByUserId(userId);
-      const items = convertBackendToFrontend(cartData);
       
-      dispatch({ type: 'LOAD_CART', payload: items });
+      // Preparar dados para o reducer
+      const cartPayload = {
+        cartHeader: cartData?.cartHeader || {},
+        cartDetails: cartData?.cartDetails ? convertBackendToFrontend(cartData) : []
+      };
+      
+      dispatch({ type: 'LOAD_CART', payload: cartPayload });
       
       // Backup no localStorage apenas se tiver dados
-      if (items.length > 0) {
-        localStorage.setItem('cart', JSON.stringify(items));
+      if (cartPayload.cartDetails.length > 0) {
+        localStorage.setItem('cart', JSON.stringify(cartPayload.cartDetails));
       }
     } catch (error) {
       console.error('Erro ao carregar carrinho:', error);
@@ -351,6 +363,11 @@ export const CartProvider = ({ children }) => {
   };
 
   const getCartTotal = () => {
+    const subtotal = state.items.reduce((total, item) => total + (item.productPrice * item.quantity), 0);
+    return subtotal - (state.discountAmount || 0);
+  };
+
+  const getCartSubtotal = () => {
     return state.items.reduce((total, item) => total + (item.productPrice * item.quantity), 0);
   };
 
@@ -364,6 +381,8 @@ export const CartProvider = ({ children }) => {
         items: state.items,
         loading: state.loading,
         error: state.error,
+        couponCode: state.couponCode,
+        discountAmount: state.discountAmount,
         isAuthenticated: isUserAuthenticated(),
         addToCart,
         removeFromCart,
@@ -371,6 +390,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         applyCoupon,
         getCartTotal,
+        getCartSubtotal,
         getCartItemsCount,
         refreshCart: loadCart,
       }}

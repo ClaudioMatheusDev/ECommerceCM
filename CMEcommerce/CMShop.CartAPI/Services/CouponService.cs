@@ -12,12 +12,14 @@ namespace CMShop.CartAPI.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<CouponService> _logger;
         private readonly string _couponApiUrl;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CouponService(HttpClient httpClient, ILogger<CouponService> logger, IConfiguration configuration)
+        public CouponService(HttpClient httpClient, ILogger<CouponService> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
             _logger = logger;
             _couponApiUrl = configuration["Services:CouponAPI"] ?? "https://localhost:7204";
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CouponValidationResult> ValidateCouponAsync(string couponCode)
@@ -25,6 +27,14 @@ namespace CMShop.CartAPI.Services
             try
             {
                 _logger.LogInformation("Validando cupom: {CouponCode}", couponCode);
+                
+                // Obter o token JWT do contexto HTTP atual
+                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+                
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
                 
                 var response = await _httpClient.GetAsync($"{_couponApiUrl}/api/v1/coupon/{couponCode}");
                 

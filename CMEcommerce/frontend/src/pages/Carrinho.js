@@ -9,12 +9,15 @@ function Carrinho() {
     items, 
     loading,
     error,
+    couponCode: appliedCoupon,
+    discountAmount,
     isAuthenticated,
     removeFromCart, 
     updateQuantity, 
     clearCart, 
     applyCoupon,
     getCartTotal,
+    getCartSubtotal,
     refreshCart
   } = useCart();
 
@@ -261,17 +264,25 @@ function Carrinho() {
                 
                 <div className="summary-details">
                   <div className="summary-line">
-                    <span>Itens ({items.length})</span>
-                    <span>{formatPrice(getCartTotal())}</span>
+                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
+                    <span>{formatPrice(getCartSubtotal())}</span>
                   </div>
                   <div className="summary-line">
                     <span>Frete</span>
                     <span className="free-shipping">Grátis</span>
                   </div>
-                  <div className="summary-line">
-                    <span>Desconto</span>
-                    <span>-</span>
-                  </div>
+                  {appliedCoupon && discountAmount > 0 && (
+                    <div className="summary-line discount-line">
+                      <span>Desconto ({appliedCoupon})</span>
+                      <span className="discount-amount">-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
+                  {!appliedCoupon && (
+                    <div className="summary-line">
+                      <span>Desconto</span>
+                      <span>-</span>
+                    </div>
+                  )}
                   <hr className="summary-divider" />
                   <div className="summary-total">
                     <span>Total</span>

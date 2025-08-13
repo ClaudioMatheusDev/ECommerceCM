@@ -35,7 +35,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.Authority = "https://localhost:7000"; // IdentityServer URL
         options.RequireHttpsMetadata = false; // Para desenvolvimento
-        options.Audience = "cmshop";
+        options.Audience = "https://localhost:7000/resources";
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
             ValidIssuer = "https://localhost:7000",
-            ValidAudience = "cmshop"
+            ValidAudience = "https://localhost:7000/resources"
         };
 
         // Para debug em desenvolvimento

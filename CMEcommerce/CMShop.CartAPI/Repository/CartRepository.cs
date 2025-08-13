@@ -2,6 +2,7 @@
 using CMShop.CartAPI.Data.ValueObjects;
 using CMShop.CartAPI.Model;
 using CMShop.CartAPI.Model.Context;
+using CMShop.CartAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CMShop.CartAPI.Repository
@@ -10,11 +11,13 @@ namespace CMShop.CartAPI.Repository
     {
         private readonly SqlContext _context;
         private IMapper _mapper;
+        private readonly ICouponService _couponService;
 
-        public CartRepository(SqlContext context, IMapper mapper)
+        public CartRepository(SqlContext context, IMapper mapper, ICouponService couponService)
         {
             _context = context;
             _mapper = mapper;
+            _couponService = couponService;
         }
         public async Task<bool> ApplyCoupon(string userId, string couponCode)
         {
@@ -70,7 +73,27 @@ namespace CMShop.CartAPI.Repository
                     CartDetails = cartDetails
                 };
 
-                return _mapper.Map<CartVO>(cart);
+                var cartVO = _mapper.Map<CartVO>(cart);
+                
+                // Se há cupom aplicado, buscar o valor do desconto
+                if (!string.IsNullOrEmpty(cartHeader.CouponCode))
+                {
+                    try
+                    {
+                        var couponValidation = await _couponService.ValidateCouponAsync(cartHeader.CouponCode);
+                        if (couponValidation.IsValid)
+                        {
+                            cartVO.CartHeader.DiscountAmount = couponValidation.DiscountAmount;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Se falhar ao buscar desconto, apenas log (não quebra o carrinho)
+                        Console.WriteLine($"Erro ao buscar desconto do cupom {cartHeader.CouponCode}: {ex.Message}");
+                    }
+                }
+
+                return cartVO;
             }
             catch (Exception ex)
             {
