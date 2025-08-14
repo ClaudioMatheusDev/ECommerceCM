@@ -372,7 +372,9 @@ export const CartProvider = ({ children }) => {
   };
 
   const getCartItemsCount = () => {
-    return state.items.reduce((count, item) => count + item.quantity, 0);
+    return Array.isArray(state.items)
+      ? state.items.reduce((count, item) => count + item.quantity, 0)
+      : 0;
   };
 
   return (

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import AuthService from '../services/AuthService';
 import '../styles/Carrinho.css';
 
 function Carrinho() {
+  const navigate = useNavigate();
   const { 
     items, 
     loading,
@@ -53,7 +54,7 @@ function Carrinho() {
       alert('Faça login para finalizar a compra!');
       return;
     }
-    alert('Funcionalidade de checkout será implementada em breve!');
+    navigate('/checkout');
   };
 
   const handleRefresh = () => {
