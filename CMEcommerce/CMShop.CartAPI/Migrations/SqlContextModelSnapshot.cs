@@ -59,7 +59,6 @@ namespace CMShop.CartAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("CouponCode")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("coupon_code");
 

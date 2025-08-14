@@ -78,6 +78,11 @@ app.UseAuthorization();
 // Inicializar banco de dados e usuários padrão
 using (var scope = app.Services.CreateScope())
 {
+    // Primeiro, garantir que o banco e as tabelas existam
+    var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+    context.Database.EnsureCreated();
+    
+    // Depois inicializar os dados
     var initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
     initializer.Initialize();
 }

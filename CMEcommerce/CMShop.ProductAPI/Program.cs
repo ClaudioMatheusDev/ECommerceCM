@@ -29,7 +29,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.Authority = "https://localhost:7000"; // URL do IdentityServer
         options.RequireHttpsMetadata = false; // Para desenvolvimento
-        options.Audience = "product"; // Nome do escopo/audiência configurado no IdentityServer
+        options.Audience = "https://localhost:7000/resources"; // Nome do escopo/audiência configurado no IdentityServer
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -70,6 +70,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Criar banco automaticamente em desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+        context.Database.EnsureCreated();
+    }
+}
 
 // Configuração do pipeline HTTP
 if (app.Environment.IsDevelopment())

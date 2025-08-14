@@ -167,7 +167,27 @@ function Loja() {
                   {produtosFiltrados.map((produto) => (
                     <div key={produto.id} className="product-card">
                       <div className="product-image">
-                        <span className="product-icon">📱</span>
+                        {produto.imageURL && produto.imageURL.trim() !== '' ? (
+                          <img 
+                            src={produto.imageURL} 
+                            alt={produto.name}
+                            className="product-img"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) {
+                                e.target.nextSibling.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="product-icon-fallback"
+                          style={{
+                            display: !produto.imageURL || produto.imageURL.trim() === '' ? 'flex' : 'none'
+                          }}
+                        >
+                          📱
+                        </div>
                         <div className="product-badge">
                           ID: {produto.id}
                         </div>

@@ -1,19 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import AuthService from '../services/AuthService';
 import '../styles/Carrinho.css';
 
 function Carrinho() {
+  const navigate = useNavigate();
   const { 
     items, 
     loading,
     error,
+    couponCode: appliedCoupon,
+    discountAmount,
+    isAuthenticated,
     removeFromCart, 
     updateQuantity, 
     clearCart, 
+    applyCoupon,
     getCartTotal,
+    getCartSubtotal,
     refreshCart
   } = useCart();
+
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState('');
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -23,6 +34,8 @@ function Carrinho() {
   };
 
   const handleQuantityChange = (itemId, newQuantity) => {
+    console.log('Alterando quantidade do item:', itemId, 'para:', newQuantity);
+    console.log('Dados completos do item:', items.find(item => item.id === itemId));
     if (newQuantity <= 0) {
       removeFromCart(itemId);
     } else {
@@ -31,14 +44,54 @@ function Carrinho() {
   };
 
   const handleRemoveItem = (itemId) => {
+    console.log('Removendo item do carrinho:', itemId);
+    console.log('Dados completos do item:', items.find(item => item.id === itemId));
     removeFromCart(itemId);
   };
+
   const handleCheckout = () => {
-    alert('Funcionalidade de checkout será implementada em breve!');
+    if (!isAuthenticated) {
+      alert('Faça login para finalizar a compra!');
+      return;
+    }
+    navigate('/checkout');
   };
 
   const handleRefresh = () => {
     refreshCart();
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponMessage('Digite um código de cupom válido');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setCouponMessage('Faça login para aplicar cupons');
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponMessage('');
+
+    try {
+      const success = await applyCoupon(couponCode.trim());
+      if (success) {
+        setCouponMessage('✅ Cupom aplicado com sucesso!');
+        setCouponCode('');
+      } else {
+        setCouponMessage('❌ Cupom inválido ou expirado');
+      }
+    } catch (error) {
+      setCouponMessage(`❌ ${error.message}`);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleLogin = () => {
+    AuthService.login();
   };
 
   if (loading) {
@@ -47,6 +100,25 @@ function Carrinho() {
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Carregando carrinho...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar aviso se não estiver autenticado
+  if (!isAuthenticated) {
+    return (
+      <div className="carrinho-page">
+        <div className="auth-required">
+          <div className="auth-icon">🔒</div>
+          <h2>Login Necessário</h2>
+          <p>Para acessar seu carrinho de compras, você precisa estar logado.</p>
+          <button onClick={handleLogin} className="btn btn-primary">
+            Fazer Login
+          </button>
+          <Link to="/loja" className="btn btn-secondary">
+            Continuar Navegando
+          </Link>
         </div>
       </div>
     );
@@ -193,17 +265,25 @@ function Carrinho() {
                 
                 <div className="summary-details">
                   <div className="summary-line">
-                    <span>Itens ({items.length})</span>
-                    <span>{formatPrice(getCartTotal())}</span>
+                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
+                    <span>{formatPrice(getCartSubtotal())}</span>
                   </div>
                   <div className="summary-line">
                     <span>Frete</span>
                     <span className="free-shipping">Grátis</span>
                   </div>
-                  <div className="summary-line">
-                    <span>Desconto</span>
-                    <span>-</span>
-                  </div>
+                  {appliedCoupon && discountAmount > 0 && (
+                    <div className="summary-line discount-line">
+                      <span>Desconto ({appliedCoupon})</span>
+                      <span className="discount-amount">-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
+                  {!appliedCoupon && (
+                    <div className="summary-line">
+                      <span>Desconto</span>
+                      <span>-</span>
+                    </div>
+                  )}
                   <hr className="summary-divider" />
                   <div className="summary-total">
                     <span>Total</span>
@@ -238,9 +318,21 @@ function Carrinho() {
                     type="text" 
                     placeholder="Digite seu cupom"
                     className="coupon-input"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    disabled={couponLoading || !isAuthenticated}
                   />
-                  <button className="coupon-btn">Aplicar</button>
+                  <button 
+                    className="coupon-btn" 
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !isAuthenticated}
+                  >
+                    {couponLoading ? 'Aplicando...' : 'Aplicar'}
+                  </button>
                 </div>
+                {couponMessage && (
+                  <p className="coupon-message">{couponMessage}</p>
+                )}
               </div>
             </div>
           </div>

@@ -41,7 +41,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/cart/{everything}",
+      "DownstreamPathTemplate": "/api/v1/carts/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -61,7 +61,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/cart",
+      "DownstreamPathTemplate": "/api/v1/carts",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -72,6 +72,26 @@
       "UpstreamPathTemplate": "/gateway/carts",
       "UpstreamHttpMethod": [ "GET", "POST" ],
       "Key": "cart-list",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 30,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/coupon/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7204
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/coupon/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "coupon",
       "RateLimitOptions": {
         "ClientWhitelist": [],
         "EnableRateLimiting": true,

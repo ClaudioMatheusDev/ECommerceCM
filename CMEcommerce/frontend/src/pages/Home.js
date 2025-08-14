@@ -96,12 +96,20 @@ function Home() {
                 featuredProducts.map((product) => (
                   <div key={product.id} className="product-preview-card">
                     <div className="product-image">
-                      📱
+                      {product.imageURL ? (
+                        <img
+                          src={product.imageURL}
+                          alt={product.name}
+                          style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '2rem' }}>📱</span>
+                      )}
                     </div>
                     <div className="product-info">
                       <h3 className="product-name">
-                        {product.name.length > 50 
-                          ? `${product.name.substring(0, 50)}...` 
+                        {product.name.length > 50
+                          ? `${product.name.substring(0, 50)}...`
                           : product.name}
                       </h3>
                       <div className="product-price">
@@ -111,13 +119,13 @@ function Home() {
                   </div>
                 ))
               ) : (
-                <div style={{ 
-                  gridColumn: '1 / -1', 
-                  textAlign: 'center', 
+                <div style={{
+                  gridColumn: '1 / -1',
+                  textAlign: 'center',
                   padding: '50px',
-                  color: '#666' 
+                  color: '#666'
                 }}>
-                  Nenhum produto encontrado. 
+                  Nenhum produto encontrado.
                   <Link to="/loja" style={{ color: '#667eea', textDecoration: 'none' }}>
                     Explorar nossa loja
                   </Link>

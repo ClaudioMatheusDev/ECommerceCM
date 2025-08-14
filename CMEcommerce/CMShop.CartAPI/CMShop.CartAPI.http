@@ -1,0 +1,112 @@
+### Cart API - Testes de Endpoints
+
+@cartApiUrl = https://localhost:7201
+@gatewayUrl = https://localhost:7101
+
+### 1. Health Check
+GET {{cartApiUrl}}/swagger
+
+### 2. Obter carrinho por usuário (via API Gateway)
+GET {{gatewayUrl}}/api/cart/user123
+Accept: application/json
+
+### 3. Obter carrinho por usuário (direto)
+GET {{cartApiUrl}}/api/v1/carts/user123
+Accept: application/json
+
+### 4. Adicionar item ao carrinho
+POST {{cartApiUrl}}/api/v1/carts
+Content-Type: application/json
+
+{
+  "cartHeader": {
+    "userId": "user123",
+    "couponCode": null
+  },
+  "cartDetails": [
+    {
+      "productId": 1,
+      "count": 2,
+      "product": {
+        "id": 1,
+        "name": "iPhone 15",
+        "price": 999.99,
+        "description": "Smartphone Apple iPhone 15",
+        "categoryName": "Eletrônicos",
+        "imageUrl": "https://example.com/iphone15.jpg"
+      }
+    }
+  ]
+}
+
+### 5. Atualizar carrinho
+PUT {{cartApiUrl}}/api/v1/carts
+Content-Type: application/json
+
+{
+  "cartHeader": {
+    "userId": "user123",
+    "couponCode": null
+  },
+  "cartDetails": [
+    {
+      "productId": 1,
+      "count": 3,
+      "product": {
+        "id": 1,
+        "name": "iPhone 15",
+        "price": 999.99,
+        "description": "Smartphone Apple iPhone 15",
+        "categoryName": "Eletrônicos",
+        "imageUrl": "https://example.com/iphone15.jpg"
+      }
+    }
+  ]
+}
+
+### 6. Remover item do carrinho (substitua {cartDetailId} pelo ID real)
+DELETE {{cartApiUrl}}/api/v1/carts/1
+
+### 7. Aplicar cupom
+POST {{cartApiUrl}}/api/v1/carts/apply-coupon
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "couponCode": "DESCONTO10"
+}
+
+### 8. Remover cupom
+DELETE {{cartApiUrl}}/api/v1/carts/remove-coupon/user123
+
+### 9. Limpar carrinho
+DELETE {{cartApiUrl}}/api/v1/carts/clear/user123
+
+### 10. Listar todos os carrinhos (Admin)
+GET {{cartApiUrl}}/api/v1/carts
+Accept: application/json
+
+### 11. Teste via Gateway - Adicionar item
+POST {{gatewayUrl}}/api/cart
+Content-Type: application/json
+
+{
+  "cartHeader": {
+    "userId": "user456",
+    "couponCode": null
+  },
+  "cartDetails": [
+    {
+      "productId": 2,
+      "count": 1,
+      "product": {
+        "id": 2,
+        "name": "MacBook Pro",
+        "price": 2499.99,
+        "description": "Laptop Apple MacBook Pro",
+        "categoryName": "Computadores",
+        "imageUrl": "https://example.com/macbook.jpg"
+      }
+    }
+  ]
+}
