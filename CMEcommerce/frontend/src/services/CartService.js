@@ -68,7 +68,6 @@ export async function addToCart(cartData) {
   try {
     requireAuth();
     
-    // Estruturar dados conforme esperado pelo backend
     const cartPayload = {
       cartHeader: {
         userId: cartData.userId,
@@ -194,5 +193,22 @@ export async function removeCoupon(userId) {
       throw new Error("Sessão expirada. Faça login novamente.");
     }
     throw new Error(error.response?.data?.message || "Erro ao remover cupom");
+  }
+}
+
+export async function checkout(checkoutData) {
+  try {
+    requireAuth();
+
+    const response = await axios.post(`${API_BASE}/checkout`, checkoutData, {
+      headers: createAuthenticatedRequest()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao realizar checkout:', error);
+    if (error.response?.status === 401) {
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
+    throw new Error(error.response?.data?.message || "Erro ao realizar checkout");
   }
 }

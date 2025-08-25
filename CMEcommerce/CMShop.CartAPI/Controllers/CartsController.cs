@@ -1,4 +1,6 @@
 using CMShop.CartAPI.Data.ValueObjects;
+using CMShop.CartAPI.Mensagens;
+using CMShop.CartAPI.RabbitMQSender;
 using CMShop.CartAPI.Repository;
 using CMShop.CartAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,14 +14,17 @@ namespace CMShop.CartAPI.Controllers
     {
         private ICartRepository _repository;
         private ICouponService _couponService;
+        private IRabbitMQMessageSender _rabbitMQMessageSender;
         private readonly ILogger<CartsController> _logger;
 
-        public CartsController(ICartRepository repository, ICouponService couponService, ILogger<CartsController> logger)
+        public CartsController(ICartRepository repository, ICouponService couponService, IRabbitMQMessageSender rabbitMQMessageSender, ILogger<CartsController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _couponService = couponService ?? throw new ArgumentNullException(nameof(couponService));
+            _rabbitMQMessageSender = rabbitMQMessageSender ?? throw new ArgumentNullException(nameof(rabbitMQMessageSender));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
 
         // GET /api/v1/carts/{userId} - Obter carrinho por usuário
         [HttpGet("{userId}")]
@@ -28,14 +33,14 @@ namespace CMShop.CartAPI.Controllers
             try
             {
                 _logger.LogInformation("Buscando carrinho para usuário: {UserId}", userId);
-                
+
                 var cart = await _repository.FindCartByUserID(userId);
                 if (cart == null)
                 {
                     _logger.LogInformation("Carrinho não encontrado para usuário: {UserId}", userId);
                     return Ok(new CartVO { CartDetails = new List<CartDetailVO>() });
                 }
-                
+
                 _logger.LogInformation("Carrinho encontrado para usuário: {UserId}", userId);
                 return Ok(cart);
             }
@@ -60,12 +65,12 @@ namespace CMShop.CartAPI.Controllers
 
                 _logger.LogInformation("Recebido request para adicionar/atualizar carrinho: {CartData}", System.Text.Json.JsonSerializer.Serialize(cart));
                 _logger.LogInformation("Adicionando/Atualizando carrinho para usuário: {UserId}", cart.CartHeader?.UserId);
-                
+
                 var result = await _repository.SaveOrUpdateCart(cart);
-                
-                _logger.LogInformation("Carrinho salvo com sucesso. CartHeader ID: {HeaderId}, Items: {ItemCount}", 
+
+                _logger.LogInformation("Carrinho salvo com sucesso. CartHeader ID: {HeaderId}, Items: {ItemCount}",
                     result?.CartHeader?.Id, result?.CartDetails?.Count());
-                
+
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -92,7 +97,7 @@ namespace CMShop.CartAPI.Controllers
                 }
 
                 _logger.LogInformation("Atualizando carrinho para usuário: {UserId}", cart.CartHeader?.UserId);
-                
+
                 var result = await _repository.SaveOrUpdateCart(cart);
                 return Ok(result);
             }
@@ -110,14 +115,14 @@ namespace CMShop.CartAPI.Controllers
             try
             {
                 _logger.LogInformation("Removendo item do carrinho: {CartDetailId}", cartDetailId);
-                
+
                 bool success = await _repository.RemoveFromCart(cartDetailId);
                 if (success)
                 {
                     _logger.LogInformation("Item removido com sucesso: {CartDetailId}", cartDetailId);
                     return Ok(new { message = "Item removido com sucesso" });
                 }
-                
+
                 _logger.LogWarning("Item não encontrado: {CartDetailId}", cartDetailId);
                 return NotFound("Item não encontrado");
             }
@@ -135,14 +140,14 @@ namespace CMShop.CartAPI.Controllers
             try
             {
                 _logger.LogInformation("Limpando carrinho para usuário: {UserId}", userId);
-                
+
                 bool success = await _repository.ClearCart(userId);
                 if (success)
                 {
                     _logger.LogInformation("Carrinho limpo com sucesso para usuário: {UserId}", userId);
                     return Ok(new { message = "Carrinho limpo com sucesso" });
                 }
-                
+
                 _logger.LogWarning("Carrinho não encontrado para usuário: {UserId}", userId);
                 return NotFound("Carrinho não encontrado");
             }
@@ -165,27 +170,28 @@ namespace CMShop.CartAPI.Controllers
                 }
 
                 _logger.LogInformation("Aplicando cupom {CouponCode} para usuário: {UserId}", request.CouponCode, request.UserId);
-                
+
                 // Primeiro valida o cupom no CouponAPI
                 var validationResult = await _couponService.ValidateCouponAsync(request.CouponCode);
-                
+
                 if (!validationResult.IsValid)
                 {
                     _logger.LogWarning("Cupom inválido: {CouponCode} - {ErrorMessage}", request.CouponCode, validationResult.ErrorMessage);
                     return BadRequest(validationResult.ErrorMessage);
                 }
-                
+
                 // Se o cupom é válido, aplica no carrinho
                 bool success = await _repository.ApplyCoupon(request.UserId, request.CouponCode);
                 if (success)
                 {
                     _logger.LogInformation("Cupom aplicado com sucesso. Desconto: {DiscountAmount}", validationResult.DiscountAmount);
-                    return Ok(new { 
+                    return Ok(new
+                    {
                         message = "Cupom aplicado com sucesso",
                         discountAmount = validationResult.DiscountAmount
                     });
                 }
-                
+
                 _logger.LogWarning("Falha ao aplicar cupom para usuário: {UserId}", request.UserId);
                 return BadRequest("Falha ao aplicar cupom - carrinho não encontrado");
             }
@@ -203,14 +209,14 @@ namespace CMShop.CartAPI.Controllers
             try
             {
                 _logger.LogInformation("Removendo cupom para usuário: {UserId}", userId);
-                
+
                 bool success = await _repository.RemoveCoupon(userId);
                 if (success)
                 {
                     _logger.LogInformation("Cupom removido com sucesso para usuário: {UserId}", userId);
                     return Ok(new { message = "Cupom removido com sucesso" });
                 }
-                
+
                 _logger.LogWarning("Falha ao remover cupom para usuário: {UserId}", userId);
                 return BadRequest("Falha ao remover cupom");
             }
@@ -237,11 +243,32 @@ namespace CMShop.CartAPI.Controllers
                 return StatusCode(500, "Erro interno do servidor");
             }
         }
+
+
+        [HttpPost("checkout")]
+        public async Task<ActionResult<CartVO>> Checkout(CheckoutHeaderVO vo)
+        {
+            if (vo?.UserID == null) return BadRequest();
+            var cart = await _repository.FindCartByUserID(vo.UserID);
+            if (cart == null)
+            {
+                _logger.LogWarning("Carrinho não encontrado para checkout: {UserId}", vo.UserID);
+                return NotFound("Carrinho não encontrado");
+            }
+            vo.CartDetails = cart.CartDetails;
+            vo.DateTime = DateTime.Now;
+
+            _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
+
+            return Ok(vo);
+        }
+
+
+        public class CouponRequest
+        {
+            public string UserId { get; set; } = string.Empty;
+            public string CouponCode { get; set; } = string.Empty;
+        }
     }
 
-    public class CouponRequest
-    {
-        public string UserId { get; set; } = string.Empty;
-        public string CouponCode { get; set; } = string.Empty;
-    }
 }
