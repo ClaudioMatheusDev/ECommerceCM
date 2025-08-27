@@ -258,7 +258,7 @@ namespace CMShop.CartAPI.Controllers
             vo.CartDetails = cart.CartDetails;
             vo.DateTime = DateTime.Now;
 
-            _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
+            await _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
 
             return Ok(vo);
         }

@@ -2,7 +2,6 @@
 using CMShop.CartAPI.Mensagens;
 using CMShop.MessageBus;
 using RabbitMQ.Client;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -13,7 +12,7 @@ namespace CMShop.CartAPI.RabbitMQSender
         private readonly string _hostName;
         private readonly string _passWord;
         private readonly string _userName;
-        private IConnection _connection;
+        private IConnection? _connection;
 
         public RabbitMQMessageSender()
         {
@@ -22,7 +21,7 @@ namespace CMShop.CartAPI.RabbitMQSender
             _userName = "guest";
         }
 
-        public void SendMessage(BaseMessage message, string queueName)
+        public async Task SendMessage(BaseMessage message, string queueName)
         {
             var factory = new ConnectionFactory
             {
@@ -30,22 +29,21 @@ namespace CMShop.CartAPI.RabbitMQSender
                 UserName = _userName,
                 Password = _passWord
             };
-            _connection = factory.CreateConnection();
-            using var channel = _connection.CreateModel();
-            channel.QueueDeclare(queue: queueName,
-                                false,
-                                false,
-                                false,
-                                arguments: null);
+            _connection = await factory.CreateConnectionAsync();
+            using var channel = await _connection.CreateChannelAsync();
+            await channel.QueueDeclareAsync(queue: queueName,
+                                          durable: false,
+                                          exclusive: false,
+                                          autoDelete: false,
+                                          arguments: null);
 
             byte[] body = GetMessageAsByteArray(message);
-            channel.BasicPublish(exchange: "",
-                                 routingKey: queueName,
-                                 basicProperties: null,
-                                 body: body);
+            await channel.BasicPublishAsync(exchange: "",
+                                           routingKey: queueName,
+                                           body: body);
         }
 
-        private byte[] GetMessageAsByteArray(object baseMessage, BaseMessage message)
+        private byte[] GetMessageAsByteArray(BaseMessage message)
         {
             var options = new JsonSerializerOptions
             {

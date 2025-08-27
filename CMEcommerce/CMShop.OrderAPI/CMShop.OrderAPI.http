@@ -1,6 +1,111 @@
-@CMShop.OrderAPI_HostAddress = http://localhost:5070
+### CM Shop Order API - Testes
 
-GET {{CMShop.OrderAPI_HostAddress}}/weatherforecast/
-Accept: application/json
+@baseUrl = https://localhost:7203
+@authToken = Bearer YOUR_JWT_TOKEN_HERE
 
-###
+### 1. Health Check
+GET {{baseUrl}}/
+
+### 2. Swagger UI
+GET {{baseUrl}}/swagger
+
+### 3. Listar todos os pedidos (Admin)
+GET {{baseUrl}}/api/v1/orders
+Authorization: {{authToken}}
+
+### 4. Buscar pedido por ID
+GET {{baseUrl}}/api/v1/orders/1
+
+### 5. Buscar pedidos por usuário
+GET {{baseUrl}}/api/v1/orders/user/test-user-123
+
+### 6. Criar novo pedido
+POST {{baseUrl}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "orderHeader": {
+    "userId": "test-user-123",
+    "couponCode": "DESCONTO10",
+    "discountAmount": 10.00,
+    "purchaseAmount": 150.00,
+    "firstName": "João",
+    "lastName": "Silva",
+    "phone": "(11) 99999-9999",
+    "email": "joao.silva@email.com",
+    "cardNumber": "1234567812345678",
+    "cvv": "123",
+    "expiryMonthYear": "12/25",
+    "cartTotalItems": 2,
+    "paymentStatus": false
+  },
+  "orderDetails": [
+    {
+      "productId": 1,
+      "count": 2,
+      "productName": "Produto Teste 1",
+      "price": 50.00
+    },
+    {
+      "productId": 2,
+      "count": 1,
+      "productName": "Produto Teste 2",
+      "price": 60.00
+    }
+  ]
+}
+
+### 7. Atualizar status de pagamento (Admin)
+PATCH {{baseUrl}}/api/v1/orders/1/payment-status
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+  "paymentStatus": true
+}
+
+### 8. Atualizar pedido (Admin)
+PUT {{baseUrl}}/api/v1/orders/1
+Content-Type: application/json
+Authorization: {{authToken}}
+
+{
+  "orderHeader": {
+    "id": 1,
+    "userId": "test-user-123",
+    "couponCode": "DESCONTO15",
+    "discountAmount": 15.00,
+    "purchaseAmount": 145.00,
+    "firstName": "João",
+    "lastName": "Silva",
+    "phone": "(11) 99999-9999",
+    "email": "joao.silva@email.com",
+    "cardNumber": "1234567812345678",
+    "cvv": "123",
+    "expiryMonthYear": "12/25",
+    "cartTotalItems": 2,
+    "paymentStatus": true
+  },
+  "orderDetails": [
+    {
+      "id": 1,
+      "orderHeaderId": 1,
+      "productId": 1,
+      "count": 2,
+      "productName": "Produto Teste 1",
+      "price": 50.00
+    },
+    {
+      "id": 2,
+      "orderHeaderId": 1,
+      "productId": 2,
+      "count": 1,
+      "productName": "Produto Teste 2",
+      "price": 60.00
+    }
+  ]
+}
+
+### 9. Deletar pedido (Admin)
+DELETE {{baseUrl}}/api/v1/orders/1
+Authorization: {{authToken}}
