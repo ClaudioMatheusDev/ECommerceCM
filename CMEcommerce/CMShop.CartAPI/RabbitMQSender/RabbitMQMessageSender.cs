@@ -2,7 +2,6 @@
 using CMShop.CartAPI.Mensagens;
 using CMShop.MessageBus;
 using RabbitMQ.Client;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -13,7 +12,7 @@ namespace CMShop.CartAPI.RabbitMQSender
         private readonly string _hostName;
         private readonly string _passWord;
         private readonly string _userName;
-        private IConnection _connection;
+        private IConnection? _connection;
 
         public RabbitMQMessageSender()
         {
@@ -22,30 +21,50 @@ namespace CMShop.CartAPI.RabbitMQSender
             _userName = "guest";
         }
 
-        public void SendMessage(BaseMessage message, string queueName)
+        public async Task SendMessage(BaseMessage message, string queueName)
         {
-            var factory = new ConnectionFactory
+            try
             {
-                HostName = _hostName,
-                UserName = _userName,
-                Password = _passWord
-            };
-            _connection = factory.CreateConnection();
-            using var channel = _connection.CreateModel();
-            channel.QueueDeclare(queue: queueName,
-                                false,
-                                false,
-                                false,
-                                arguments: null);
+                Console.WriteLine($"[RabbitMQ] Iniciando envio de mensagem para fila: {queueName}");
+                
+                var factory = new ConnectionFactory
+                {
+                    HostName = _hostName,
+                    UserName = _userName,
+                    Password = _passWord
+                };
+                
+                Console.WriteLine($"[RabbitMQ] Conectando ao RabbitMQ em {_hostName}...");
+                _connection = await factory.CreateConnectionAsync();
+                
+                Console.WriteLine($"[RabbitMQ] Conexão estabelecida. Criando canal...");
+                using var channel = await _connection.CreateChannelAsync();
+                
+                Console.WriteLine($"[RabbitMQ] Declarando fila: {queueName}");
+                await channel.QueueDeclareAsync(queue: queueName,
+                                              durable: false,
+                                              exclusive: false,
+                                              autoDelete: false,
+                                              arguments: null);
 
-            byte[] body = GetMessageAsByteArray(message);
-            channel.BasicPublish(exchange: "",
-                                 routingKey: queueName,
-                                 basicProperties: null,
-                                 body: body);
+                byte[] body = GetMessageAsByteArray(message);
+                Console.WriteLine($"[RabbitMQ] Mensagem serializada. Tamanho: {body.Length} bytes");
+                
+                await channel.BasicPublishAsync(exchange: "",
+                                               routingKey: queueName,
+                                               body: body);
+                
+                Console.WriteLine($"[RabbitMQ] ✅ Mensagem enviada com sucesso para fila '{queueName}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[RabbitMQ] ❌ Erro ao enviar mensagem: {ex.Message}");
+                Console.WriteLine($"[RabbitMQ] StackTrace: {ex.StackTrace}");
+                throw;
+            }
         }
 
-        private byte[] GetMessageAsByteArray(object baseMessage, BaseMessage message)
+        private byte[] GetMessageAsByteArray(BaseMessage message)
         {
             var options = new JsonSerializerOptions
             {

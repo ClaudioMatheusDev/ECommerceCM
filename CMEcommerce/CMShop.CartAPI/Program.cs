@@ -25,9 +25,16 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Registrar o repositório de carrinho
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
-// Registrar o serviço de cupom
+// Registrar o repositório e serviço de cupom
+builder.Services.AddHttpClient<ICouponRepository, CouponRepository>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:CouponAPI"] ?? "https://localhost:7204");
+});
 builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+
+// Registrar o RabbitMQ Message Sender
+builder.Services.AddScoped<CMShop.CartAPI.RabbitMQSender.IRabbitMQMessageSender, CMShop.CartAPI.RabbitMQSender.RabbitMQMessageSender>();
 
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();

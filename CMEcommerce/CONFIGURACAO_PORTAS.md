@@ -76,6 +76,16 @@ cd frontend
 npm start
 ```
 
+#### Order API (Port 7203)
+```json
+"Kestrel": {
+  "EndPoints": {
+    "Http": { "Url": "http://localhost:7202" },
+    "Https": { "Url": "https://localhost:7203" }
+  }
+}
+```
+
 ## 🧪 Endpoints para Teste
 
 | Serviço | URL | Status |
@@ -85,6 +95,7 @@ npm start
 | Routes Info | https://localhost:7101/api/health/routes | ✅ |
 | Products via Gateway | https://localhost:7101/gateway/products | 🔄 |
 | Product API Direct | https://localhost:7199/api/product | 🔄 |
+| Order API Direct | https://localhost:7203/api/v1/orders | 🔄 |
 | Frontend via Gateway | https://localhost:7101/app/ | 🔄 |
 
 ## ⚠️ Troubleshooting

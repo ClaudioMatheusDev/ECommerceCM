@@ -15,9 +15,14 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CMShop.MessageBus\CMShop.MessageBus.csproj" />
 	</ItemGroup>
 
 </Project>

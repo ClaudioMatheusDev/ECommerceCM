@@ -9,7 +9,6 @@ if (process.env.NODE_ENV === 'development') {
   process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 }
 
-// Criar interceptor para adicionar token automaticamente nas requisições
 const createAuthenticatedRequest = () => {
   const headers = {
     "Content-Type": "application/json",
@@ -200,15 +199,48 @@ export async function checkout(checkoutData) {
   try {
     requireAuth();
 
+    console.log('Enviando request para:', `${API_BASE}/checkout`);
+    console.log('Headers:', createAuthenticatedRequest());
+    console.log('Dados enviados:', checkoutData);
+
     const response = await axios.post(`${API_BASE}/checkout`, checkoutData, {
       headers: createAuthenticatedRequest()
     });
     return response.data;
   } catch (error) {
     console.error('Erro ao realizar checkout:', error);
+    console.error('Status:', error.response?.status);
+    console.error('Response data:', error.response?.data);
+    console.error('Response headers:', error.response?.headers);
+    
+    // Log detalhado dos erros de validação
+    if (error.response?.data?.errors) {
+      console.error('🔍 ERROS DE VALIDAÇÃO DETALHADOS:');
+      console.error(JSON.stringify(error.response.data.errors, null, 2));
+    }
+    
     if (error.response?.status === 401) {
       throw new Error("Sessão expirada. Faça login novamente.");
     }
-    throw new Error(error.response?.data?.message || "Erro ao realizar checkout");
+    
+    // Capturar detalhes mais específicos do erro
+    let errorMessage = "Erro ao realizar checkout";
+    if (error.response?.data) {
+      if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data.title) {
+        errorMessage = error.response.data.title;
+      } else if (error.response.data.errors) {
+        // Mostrar os erros de validação
+        const validationErrors = Object.entries(error.response.data.errors)
+          .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+          .join('; ');
+        errorMessage = `Erros de validação: ${validationErrors}`;
+      }
+    }
+    
+    throw new Error(errorMessage);
   }
 }

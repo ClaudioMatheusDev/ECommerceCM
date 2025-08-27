@@ -3,6 +3,6 @@ namespace CMShop.CartAPI.RabbitMQSender
 {
     public interface IRabbitMQMessageSender
     {
-        void SendMessage(BaseMessage message, string queueName);
+        Task SendMessage(BaseMessage message, string queueName);
     }
 }

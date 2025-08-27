@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { checkout } from '../services/CartService';
 import '../styles/Checkout.css';
 
 const Checkout = () => {
@@ -117,54 +118,50 @@ const Checkout = () => {
     setLoading(true);
     
     try {
-      // TODO: Implementar chamada para o microserviço de checkout
-      const orderData = {
-        // Dados do usuário
-        userId: user?.sub,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        
-        // Endereço
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          country: formData.country
-        },
-        
-        // Pagamento
-        payment: {
-          cardNumber: formData.cardNumber.replace(/\s/g, ''),
-          cvv: formData.cvv,
-          expiryMonth: formData.expiryMonth,
-          expiryYear: formData.expiryYear
-        },
-        
-        // Itens do carrinho
-        items: items,
-        
-        // Valores
-        subtotal: getCartSubtotal(),
-        discountAmount: discountAmount || 0,
-        total: getCartTotal(),
-        couponCode: couponCode
+      // Verificar se o usuário tem itens no carrinho
+      if (!items || items.length === 0) {
+        throw new Error("Carrinho vazio. Adicione produtos antes de finalizar a compra.");
+      }
+
+      console.log('=== INICIANDO CHECKOUT ===');
+      console.log('Dados do usuário:', user);
+      console.log('Itens no carrinho:', items);
+      console.log('Total do carrinho:', getCartTotal());
+
+      // Preparar dados para o checkout seguindo o formato esperado pelo backend (CheckoutHeaderVO)
+      const checkoutData = {
+        Id: 0, // BaseMessage property
+        MessageCreated: new Date().toISOString(), // BaseMessage property
+        UserID: user?.sub,
+        CouponCode: couponCode || "",
+        DiscountAmount: discountAmount || 0,
+        PurchaseAmount: getCartTotal(),
+        FirstName: formData.firstName,
+        LastName: formData.lastName,
+        Phone: formData.phone,
+        Email: formData.email,
+        CardNumber: formData.cardNumber.replace(/\s/g, ''),
+        CVV: formData.cvv,
+        ExpiryMothYear: `${formData.expiryMonth}/${formData.expiryYear}`,
+        CartTotalItems: items.length
+        // DateTime e CartDetails são preenchidos pelo backend
       };
 
-      console.log('Dados do pedido:', orderData);
+      console.log('=== DADOS ENVIADOS PARA CHECKOUT ===');
+      console.log('CheckoutData completo:', JSON.stringify(checkoutData, null, 2));
       
-      // Simular processamento
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Chamar o serviço de checkout real
+      const result = await checkout(checkoutData);
       
+      console.log('Checkout realizado com sucesso:', result);
       alert('Pedido realizado com sucesso!');
+      
       clearCart();
       navigate('/pedidos'); // Redirecionar para página de pedidos
       
     } catch (error) {
       console.error('Erro ao processar pedido:', error);
-      alert('Erro ao processar pedido. Tente novamente.');
+      alert(`Erro ao processar pedido: ${error.message}`);
     } finally {
       setLoading(false);
     }
