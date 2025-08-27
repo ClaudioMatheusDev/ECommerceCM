@@ -29,6 +29,9 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 
+// Registrar o RabbitMQ Message Sender
+builder.Services.AddScoped<CMShop.CartAPI.RabbitMQSender.IRabbitMQMessageSender, CMShop.CartAPI.RabbitMQSender.RabbitMQMessageSender>();
+
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 

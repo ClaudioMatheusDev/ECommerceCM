@@ -244,23 +244,56 @@ namespace CMShop.CartAPI.Controllers
             }
         }
 
-
         [HttpPost("checkout")]
         public async Task<ActionResult<CartVO>> Checkout(CheckoutHeaderVO vo)
         {
-            if (vo?.UserID == null) return BadRequest();
-            var cart = await _repository.FindCartByUserID(vo.UserID);
-            if (cart == null)
+            try
             {
-                _logger.LogWarning("Carrinho não encontrado para checkout: {UserId}", vo.UserID);
-                return NotFound("Carrinho não encontrado");
+                _logger.LogInformation("=== INICIO CHECKOUT ===");
+                _logger.LogInformation("Recebido request de checkout: {@CheckoutData}", vo);
+                
+                // Verificar se o modelo é válido
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("Modelo inválido para checkout: {@ModelState}", ModelState);
+                    return BadRequest(ModelState);
+                }
+                
+                if (vo?.UserID == null) 
+                {
+                    _logger.LogWarning("UserID é nulo no checkout");
+                    return BadRequest("UserID é obrigatório");
+                }
+                
+                _logger.LogInformation("Buscando carrinho para usuário: {UserId}", vo.UserID);
+                var cart = await _repository.FindCartByUserID(vo.UserID);
+                if (cart == null)
+                {
+                    _logger.LogWarning("Carrinho não encontrado para checkout: {UserId}", vo.UserID);
+                    return NotFound("Carrinho não encontrado");
+                }
+                
+                _logger.LogInformation("Carrinho encontrado. Itens no carrinho: {ItemCount}", cart.CartDetails?.Count() ?? 0);
+                
+                vo.CartDetails = cart.CartDetails;
+                vo.DateTime = DateTime.Now;
+
+                _logger.LogInformation("Preparando para enviar mensagem para fila de checkout...");
+                _logger.LogInformation("Dados completos do checkout: {@CompleteCheckoutData}", vo);
+                
+                await _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
+                
+                _logger.LogInformation("Mensagem enviada com sucesso para fila 'checkoutqueue'");
+                _logger.LogInformation("Checkout processado com sucesso para usuário: {UserId}", vo.UserID);
+                _logger.LogInformation("=== FIM CHECKOUT ===");
+                
+                return Ok(vo);
             }
-            vo.CartDetails = cart.CartDetails;
-            vo.DateTime = DateTime.Now;
-
-            await _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
-
-            return Ok(vo);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar checkout para usuário: {UserId} - Stacktrace: {StackTrace}", vo?.UserID, ex.StackTrace);
+                return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
+            }
         }
 
 
