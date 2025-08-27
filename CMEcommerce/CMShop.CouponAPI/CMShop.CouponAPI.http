@@ -1,0 +1,6 @@
+@CMShop.CouponAPI_HostAddress = http://localhost:5272
+
+GET {{CMShop.CouponAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

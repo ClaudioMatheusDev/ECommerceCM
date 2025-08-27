@@ -1,0 +1,110 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/product/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7199
+        }
+      ],
+      "UpstreamPathTemplate": "/api/product/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/product",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7199
+        }
+      ],
+      "UpstreamPathTemplate": "/api/product",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/api/cart/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 50
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/api/cart",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts/checkout",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/api/cart/checkout",
+      "UpstreamHttpMethod": [ "POST" ],
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 10
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/connect/{everything}",
+      "DownstreamScheme": "https", 
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/connect/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/identity/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7101",
+    "RateLimitOptions": {
+      "ClientWhitelist": [],
+      "EnableRateLimiting": true,
+      "Period": "1m",
+      "PeriodTimespan": 60,
+      "Limit": 100
+    }
+  }
+}

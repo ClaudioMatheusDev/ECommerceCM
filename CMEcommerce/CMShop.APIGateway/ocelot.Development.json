@@ -1,0 +1,172 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/product/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7199
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/product/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "Key": "products",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 10,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/product",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7199
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/products",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "Key": "products-list",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 20,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/cart/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "Key": "cart",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 50,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/carts",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7201
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/carts",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "Key": "cart-list",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 30,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/coupon/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7204
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/coupon/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "coupon",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 30,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/connect/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/connect/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "Key": "identity-connect"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7000
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/identity/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "Key": "identity-pages"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 3000
+        }
+      ],
+      "UpstreamPathTemplate": "/app/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "Key": "frontend"
+    }
+  ],
+  "Aggregates": [
+    {
+      "RouteKeys": [ "products", "products-list" ],
+      "UpstreamPathTemplate": "/gateway/aggregated/products",
+      "UpstreamHttpMethod": [ "GET" ],
+      "ReRouteKeysConfig": {
+        "products": "ProductDetails",
+        "products-list": "ProductsList"
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7101",
+    "RateLimitOptions": {
+      "ClientWhitelist": [ "127.0.0.1", "::1" ],
+      "EnableRateLimiting": true,
+      "Period": "1m",
+      "PeriodTimespan": 60,
+      "Limit": 100
+    },
+    "LoadBalancerOptions": {
+      "Type": "RoundRobin"
+    },
+    "HttpHandlerOptions": {
+      "AllowAutoRedirect": false,
+      "UseCookieContainer": false,
+      "UseTracing": true
+    }
+  }
+}

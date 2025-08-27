@@ -1,0 +1,83 @@
+.pedidos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.pedidos-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.pedidos-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.pedidos-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.pedidos-content {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.empty-orders {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-orders h2 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+}
+
+.empty-orders p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.btn-shop {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-shop:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .pedidos-container {
+    padding: 15px;
+  }
+  
+  .pedidos-content {
+    padding: 30px 20px;
+  }
+  
+  .pedidos-header h1 {
+    font-size: 2rem;
+  }
+  
+  .empty-orders h2 {
+    font-size: 1.5rem;
+  }
+}

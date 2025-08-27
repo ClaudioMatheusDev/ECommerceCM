@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: CMShop.APIGateway/Dockerfile
+    ports:
+      - "7100:7100"
+      - "7101:7101"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7101;http://+:7100
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=Dev123!
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+    depends_on:
+      - product-api
+    networks:
+      - cmshop-network
+
+  # Product API
+  product-api:
+    build:
+      context: .
+      dockerfile: CMShop.ProductAPI/Dockerfile
+    ports:
+      - "7199:7199"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7199
+      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=CMShopProductDB;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+    depends_on:
+      - sql-server
+    networks:
+      - cmshop-network
+
+  # Identity Server 
+  # identity-server:
+  #   build:
+  #     context: .
+  #     dockerfile: CMShop.IdentityServer/Dockerfile
+  #   ports:
+  #     - "7000:7000"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=https://+:7000
+  #   networks:
+  #     - cmshop-network
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=https://api-gateway:7101/gateway
+    depends_on:
+      - api-gateway
+    networks:
+      - cmshop-network
+
+  # SQL Server
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "YourStrong@Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-server-data:/var/opt/mssql
+    networks:
+      - cmshop-network
+
+  # Redis para Cache
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - cmshop-network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: cmshop-rabbitmq
+    ports:
+      - "5672:5672"    # AMQP port
+      - "15672:15672"  # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - cmshop-network
+
+volumes:
+  sql-server-data:
+  rabbitmq-data:
+
+networks:
+  cmshop-network:
+    driver: bridge

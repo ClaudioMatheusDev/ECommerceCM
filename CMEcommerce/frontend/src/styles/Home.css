@@ -1,0 +1,250 @@
+/* Homepage CSS */
+.homepage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hero-section {
+  padding: 100px 0;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-button {
+  background: #667eea;
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.hero-button.primary {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+.hero-button.secondary {
+  background: linear-gradient(45deg, #10b981, #059669);
+}
+
+.hero-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  text-decoration: none;
+  color: white;
+}
+
+.hero-button.primary:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.hero-button.secondary:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+.features-section {
+  padding: 80px 0;
+  background: white;
+}
+
+.features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 50px;
+  font-weight: 600;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  margin-top: 50px;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 40px 30px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #667eea;
+}
+
+.feature-title {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.feature-description {
+  color: #666;
+  line-height: 1.6;
+}
+
+.products-preview-section {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.product-preview-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-preview-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #1976d2;
+}
+
+.product-info {
+  padding: 20px;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.product-price {
+  font-size: 1.2rem;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.cta-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+  text-align: center;
+  color: white;
+}
+
+.cta-title {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.cta-description {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.cta-button {
+  background: white;
+  color: #ff6b6b;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  color: #ff6b6b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .cta-title {
+    font-size: 2rem;
+  }
+}

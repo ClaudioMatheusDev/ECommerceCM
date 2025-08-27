@@ -1,0 +1,25 @@
+{
+  "SqlContext": {
+    "SqlConnectionString": "Server=localhost;Database=CMShopping_cart_api;User Id=sa;Password=91398608Ma*;TrustServerCertificate=True;"
+  },
+  "Services": {
+    "CouponAPI": "https://localhost:7204"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://localhost:7200"
+      },
+      "Https": {
+        "Url": "https://localhost:7201"
+      }
+    }
+  }
+}
