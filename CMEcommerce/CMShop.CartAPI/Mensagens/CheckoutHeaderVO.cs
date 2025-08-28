@@ -25,7 +25,7 @@ namespace CMShop.CartAPI.Mensagens
         [Required]
         public required string CVV { get; set; }
         [Required]
-        public required string ExpiryMothYear { get; set; }
+        public required string ExpiryMonthYear { get; set; }
         public int CartTotalItems { get; set; }
         
         public IEnumerable<CartDetailVO>? CartDetails { get; set; }
