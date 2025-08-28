@@ -310,6 +310,24 @@ namespace CMShop.CartAPI.Controllers
                 }
                 vo.CartDetails = cart.CartDetails;
                 vo.DateTime = DateTime.Now;
+                
+                // Calcular o valor total do carrinho
+                vo.PurchaseAmount = 0;
+                vo.CartTotalItems = 0;
+                if (cart.CartDetails != null)
+                {
+                    foreach (var detail in cart.CartDetails)
+                    {
+                        vo.PurchaseAmount += (detail.Product?.Price ?? 0) * detail.Count;
+                        vo.CartTotalItems += detail.Count;
+                    }
+                }
+                
+                // Aplicar desconto se houver cupom
+                vo.PurchaseAmount = vo.PurchaseAmount - vo.DiscountAmount;
+                
+                _logger.LogInformation("Valor total calculado: {PurchaseAmount}, Itens totais: {CartTotalItems}, Desconto: {DiscountAmount}", 
+                    vo.PurchaseAmount, vo.CartTotalItems, vo.DiscountAmount);
 
                 _logger.LogInformation("Preparando para enviar mensagem para fila de checkout...");
                 _logger.LogInformation("Dados completos do checkout: {@CompleteCheckoutData}", vo);
