@@ -1,7 +1,10 @@
 using AutoMapper;
-using CMShop.OrderAPI.Config;
-using CMShop.OrderAPI.Model.Context;
-using CMShop.OrderAPI.Repository;
+using CMShop.MessageBus;
+using CMShop.PaymentAPI.Config;
+using CMShop.PaymentAPI.MessageConsumer;
+using CMShop.PaymentAPI.Model.Context;
+using CMShop.PaymentAPI.Repository;
+using CMShop.PaymentAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,17 +22,20 @@ builder.Services.AddDbContext<SqlContext>(options =>
 // Configurar AutoMapper
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Registrar o repositório de pedidos
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+// Registrar os repositórios
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+// Registrar os serviços
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Registrar o MessageBus
-builder.Services.AddSingleton<CMShop.MessageBus.IMessageBus, CMShop.MessageBus.MessageBus>();
+builder.Services.AddSingleton<IMessageBus, CMShop.MessageBus.MessageBus>();
 
+// Comentado temporariamente para permitir a criação das migrações
 // Registrar o MessageConsumer
-builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQCheckoutConsumer>();
-builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQPaymentConsumer>();
+// Message Bus - RabbitMQ Consumer
+builder.Services.AddHostedService<RabbitMQPaymentConsumer>();
 
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
@@ -97,21 +103,20 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "CM Shop Order API",
+        Title = "CM Shop Payment API",
         Version = "v1",
-        Description = "API de gerenciamento de pedidos"
+        Description = "API de gerenciamento de pagamentos"
     });
     
-    // Configurar autenticação JWT no Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+        Description = "Enter 'Bearer' [space] and then your token in the text input below.",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -121,41 +126,29 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
             },
-            Array.Empty<string>()
+            new List<string>()
         }
     });
 });
 
 var app = builder.Build();
 
-// Aplicar migrations automaticamente em desenvolvimento
-if (app.Environment.IsDevelopment())
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<SqlContext>();
-        context.Database.EnsureCreated();
-    }
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CM Shop Order API v1");
-        c.RoutePrefix = string.Empty; // Define swagger na raiz
-    });
+    app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
-// Adicionar autenticação e autorização
+app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
