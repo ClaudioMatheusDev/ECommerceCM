@@ -52,6 +52,7 @@ namespace CMShop.ProductAPI.Repository
             existingProduct.Description = vo.Description;
             existingProduct.ImageURL = vo.ImageURL;
             existingProduct.Price = vo.Price;
+            existingProduct.Stock = vo.Stock;
             
             _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();

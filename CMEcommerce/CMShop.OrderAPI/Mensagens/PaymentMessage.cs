@@ -1,4 +1,5 @@
 using CMShop.MessageBus;
+using System.Text.Json.Serialization;
 
 namespace CMShop.OrderAPI.Mensagens
 {
@@ -13,5 +14,7 @@ namespace CMShop.OrderAPI.Mensagens
         public string CardSecurityCode { get; set; } = string.Empty;
         public string CardHolderName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string MessageType => "PaymentMessage";
     }
 }

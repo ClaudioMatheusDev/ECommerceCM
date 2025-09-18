@@ -67,10 +67,15 @@ namespace CMShop.OrderAPI.RabbitMQSender
         {
             var options = new JsonSerializerOptions
             {
-               WriteIndented = true
+               WriteIndented = true,
+               PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+               DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             };
 
-            var json = JsonSerializer.Serialize<PaymentVO>((PaymentVO)message, options);
+            Console.WriteLine($"[RabbitMQSender] Serializando mensagem tipo: {message.GetType().Name}");
+            var json = JsonSerializer.Serialize(message, message.GetType(), options);
+            Console.WriteLine($"[RabbitMQSender] JSON: {json}");
+            
             var body = Encoding.UTF8.GetBytes(json);
             return body;
         }

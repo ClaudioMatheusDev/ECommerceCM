@@ -73,7 +73,11 @@ namespace CMShop.OrderAPI.MessageConsumer
                         
                         Console.WriteLine($"[RabbitMQ PaymentResult] 📨 Mensagem de resultado de pagamento recebida: {message}");
                         
-                        var paymentResult = JsonSerializer.Deserialize<UpdatePaymentResultMessage>(message);
+                        var paymentResult = JsonSerializer.Deserialize<UpdatePaymentResultMessage>(message, 
+                            new JsonSerializerOptions {
+                                PropertyNameCaseInsensitive = true
+                            });
+                        
                         if (paymentResult != null)
                         {
                             Console.WriteLine($"[RabbitMQ PaymentResult] Processando resultado do pagamento para pedido: {paymentResult.OrderId}");
@@ -129,6 +133,7 @@ namespace CMShop.OrderAPI.MessageConsumer
                 bool paymentStatus = paymentResult.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase);
                 
                 Console.WriteLine($"[ProcessPaymentResult] Status convertido: '{paymentResult.Status}' -> {paymentStatus}");
+                Console.WriteLine($"[ProcessPaymentResult] Atualizando status do pedido {paymentResult.OrderId} para {(paymentStatus ? "APROVADO" : "REJEITADO")}");
                 
                 // Atualizar o status do pagamento no pedido
                 var success = await repository.UpdateOrderPaymentStatus(paymentResult.OrderId, paymentStatus);

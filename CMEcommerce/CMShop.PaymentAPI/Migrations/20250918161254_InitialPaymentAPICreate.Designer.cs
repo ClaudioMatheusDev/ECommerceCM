@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CMShop.PaymentAPI.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    [Migration("20250904141213_InitialPaymentAPICreate")]
+    [Migration("20250918161254_InitialPaymentAPICreate")]
     partial class InitialPaymentAPICreate
     {
         /// <inheritdoc />

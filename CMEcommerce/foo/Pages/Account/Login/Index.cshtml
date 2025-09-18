@@ -25,11 +25,11 @@
 
                             <div class="form-group">
                                 <label asp-for="Input.Username"></label>
-                                <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
+                                <input class="form-control" placeholder="Usuario" asp-for="Input.Username" autofocus>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Input.Password"></label>
-                                <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password" autocomplete="off">
+                                <input type="password" class="form-control" placeholder="Senha" asp-for="Input.Password" autocomplete="off">
                             </div>
                             
                             @if (Model.View.AllowRememberLogin)
@@ -38,7 +38,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" asp-for="Input.RememberLogin">
                                         <label class="form-check-label" asp-for="Input.RememberLogin">
-                                            Remember My Login
+                                            Relembre sua senha
                                         </label>
                                     </div>
                                 </div>
