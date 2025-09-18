@@ -15,13 +15,11 @@ namespace CMShop.OrderAPI.MessageConsumer
         private readonly IServiceProvider _serviceProvider;
         private IConnection _connection;
         private IChannel _channel;
-        private IRabbitMQMessageSender _rabbitMQMessageSender;
 
-        public RabbitMQCheckoutConsumer(IServiceProvider serviceProvider, IRabbitMQMessageSender rabbitMQMessageSender)
+        public RabbitMQCheckoutConsumer(IServiceProvider serviceProvider)
         {
             Console.WriteLine("[RabbitMQ] Inicializando RabbitMQCheckoutConsumer...");
             _serviceProvider = serviceProvider;
-            _rabbitMQMessageSender = rabbitMQMessageSender;
             try
             {
                 var factory = new ConnectionFactory
@@ -221,12 +219,12 @@ namespace CMShop.OrderAPI.MessageConsumer
                     Amount = order.PurchaseAmount
                 };
 
-                // Usar MessageBus para enviar a mensagem
+                // Usar ServiceProvider para resolver IRabbitMQMessageSender
                 using var scope = _serviceProvider.CreateScope();
-                var messageBus = scope.ServiceProvider.GetRequiredService<IMessageBus>();
+                var rabbitMQMessageSender = scope.ServiceProvider.GetRequiredService<IRabbitMQMessageSender>();
                 
-                const string queueName = "paymentprocessqueue";
-                _rabbitMQMessageSender.SendMessage(paymentMessage, queueName);
+                const string queueName = "orderpaymentprocessqueue";
+                await rabbitMQMessageSender.SendMessage(paymentMessage, queueName);
                 
                 Console.WriteLine($"[SendPaymentMessage] ✅ Mensagem de pagamento enviada para fila '{queueName}'");
             }
