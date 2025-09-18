@@ -8,7 +8,8 @@ function CreateProduct() {
     categoryName: '',
     description: '',
     imageURL: '',
-    price: ''
+    price: '',
+    stock: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,12 @@ function CreateProduct() {
       newErrors.price = 'Preço é obrigatório';
     } else if (isNaN(product.price) || parseFloat(product.price) <= 0) {
       newErrors.price = 'Preço deve ser um número válido maior que zero';
+    }
+
+    if (!product.stock && product.stock !== 0) {
+      newErrors.stock = 'Estoque é obrigatório';
+    } else if (isNaN(product.stock) || parseInt(product.stock) < 0) {
+      newErrors.stock = 'Estoque deve ser um número válido igual ou maior que zero';
     }
 
     setErrors(newErrors);
@@ -232,6 +239,30 @@ function CreateProduct() {
                   min="0"
                 />
                 {errors.price && <div className="invalid-feedback">{errors.price}</div>}
+              </div>
+            </div>
+          </div>
+
+
+          <div className="row">
+            <div className="col-md-6">
+              <div className="form-group">
+                <label htmlFor="stock" className="form-label">
+                  <i className="fas fa-dollar-sign me-2"></i>
+                  Estoque (Quantidade) *
+                </label>
+                <input
+                  type="integer"
+                  id="stock"
+                  name="stock"
+                  className={`form-control ${errors.stock ? 'is-invalid' : ''}`}
+                  value={product.stock}
+                  onChange={handleChange}
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                />
+                {errors.stock && <div className="invalid-feedback">{errors.stock}</div>}
               </div>
             </div>
           </div>
