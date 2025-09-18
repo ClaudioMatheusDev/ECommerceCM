@@ -1,8 +1,7 @@
-using AutoMapper;
-using CMShop.PaymentAPI.Data.ValueObjects;
 using CMShop.PaymentAPI.Mensagens;
-using CMShop.PaymentAPI.Repository;
-using CMShop.PaymentAPI.Services;
+using CMShop.PaymentAPI.RabbitMQSender;
+using CMShop.PaymentProcessor;
+using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -12,106 +11,73 @@ namespace CMShop.PaymentAPI.MessageConsumer
 {
     public class RabbitMQPaymentConsumer : BackgroundService
     {
-        private readonly IServiceProvider _serviceProvider;
         private IConnection? _connection;
         private IChannel? _channel;
-        private const string ExchangeName = "DirectPaymentUpdateExchange";
-        private const string PaymentProcessQueue = "paymentprocessqueue";
+        private readonly IServiceProvider _serviceProvider;
 
         public RabbitMQPaymentConsumer(IServiceProvider serviceProvider)
         {
-            Console.WriteLine("[RabbitMQ Payment] Inicializando RabbitMQPaymentConsumer...");
             _serviceProvider = serviceProvider;
-            InitializeRabbitMQ().GetAwaiter().GetResult();
+
+            var factory = new ConnectionFactory
+            {
+                HostName = "localhost",
+                UserName = "guest",
+                Password = "guest"
+            };
+            _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+            _channel.QueueDeclareAsync(queue: "orderpaymentprocessqueue", false, false, false, arguments: null).GetAwaiter().GetResult();
         }
 
-        private async Task InitializeRabbitMQ()
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            try
-            {
-                var factory = new ConnectionFactory
-                {
-                    HostName = "localhost",
-                    Port = 5672,
-                    UserName = "guest",
-                    Password = "guest"
-                };
-                
-                Console.WriteLine("[RabbitMQ Payment] Criando conexão com RabbitMQ...");
-                _connection = await factory.CreateConnectionAsync();
-                _channel = await _connection.CreateChannelAsync();
-                
-                Console.WriteLine("[RabbitMQ Payment] Declarando exchange e fila...");
-                await _channel.ExchangeDeclareAsync(ExchangeName, ExchangeType.Direct, durable: false);
-                await _channel.QueueDeclareAsync(queue: PaymentProcessQueue, durable: false, exclusive: false, autoDelete: false, arguments: null);
-                await _channel.QueueBindAsync(queue: PaymentProcessQueue, exchange: ExchangeName, routingKey: "PaymentProcessing");
-                
-                Console.WriteLine("[RabbitMQ Payment] ✅ RabbitMQPaymentConsumer inicializado com sucesso");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[RabbitMQ Payment] ❌ Erro ao inicializar RabbitMQ: {ex.Message}");
-                throw;
-            }
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            Console.WriteLine("[RabbitMQ Payment] Iniciando consumo de mensagens...");
             stoppingToken.ThrowIfCancellationRequested();
-
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.ReceivedAsync += async (ch, ea) =>
+            var consumer = new AsyncEventingBasicConsumer(_channel!);
+            consumer.ReceivedAsync += async (chanel, evt) =>
             {
-                try
+                var content = Encoding.UTF8.GetString(evt.Body.ToArray());
+                PaymentMessage? vo = JsonSerializer.Deserialize<PaymentMessage>(content);
+                if (vo != null)
                 {
-                    Console.WriteLine("[RabbitMQ Payment] 📨 Mensagem recebida");
-                    var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                    Console.WriteLine($"[RabbitMQ Payment] Conteúdo: {content}");
-
-                    var paymentMessage = JsonSerializer.Deserialize<PaymentMessage>(content);
-                    if (paymentMessage != null)
-                    {
-                        Console.WriteLine($"[RabbitMQ Payment] Processando pagamento para pedido: {paymentMessage.OrderId}");
-                        
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
-                            var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
-                            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-                            
-                            var paymentVO = mapper.Map<PaymentVO>(paymentMessage);
-                            paymentVO.PaymentDate = DateTime.Now;
-                            paymentVO.Status = "Pendente";
-                            paymentVO.Email = paymentMessage.UserId; // Usar UserId como email temporário
-                            
-                            var success = await paymentService.ProcessPayment(paymentVO);
-                            Console.WriteLine($"[RabbitMQ Payment] Resultado: {(success ? "✅ Sucesso" : "❌ Falhou")}");
-                        }
-                    }
-
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false);
-                    Console.WriteLine("[RabbitMQ Payment] ✅ Mensagem processada e confirmada");
+                    await ProcessPayment(vo);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[RabbitMQ Payment] ❌ Erro ao processar mensagem: {ex.Message}");
-                    Console.WriteLine($"[RabbitMQ Payment] StackTrace: {ex.StackTrace}");
-                    await _channel.BasicNackAsync(ea.DeliveryTag, false, true);
-                }
+                await _channel!.BasicAckAsync(evt.DeliveryTag, false);
+            };
+            _channel!.BasicConsumeAsync("orderpaymentprocessqueue", false, consumer).GetAwaiter().GetResult();
+            return Task.CompletedTask;
+        }
+
+        private Task ProcessPayment(PaymentMessage vo)
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var processPayment = scope.ServiceProvider.GetRequiredService<IProcessPayment>();
+            var rabbitMQMessageSender = scope.ServiceProvider.GetRequiredService<IRabbitMQMessageSender>();
+            
+            var result = processPayment.PaymentProcessor();
+
+            UpdatePaymentResultMessage paymentResult = new()
+            {
+                Status = result ? "Approved" : "Rejected",
+                OrderId = vo.OrderId,
+                Email = vo.Email
             };
 
-            await _channel.BasicConsumeAsync(PaymentProcessQueue, false, consumer);
-            Console.WriteLine($"[RabbitMQ Payment] ✅ Consumer registrado na fila '{PaymentProcessQueue}'");
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                await Task.Delay(1000, stoppingToken);
+                rabbitMQMessageSender.SendMessage(paymentResult, "orderpaymentresultqueue");
             }
+            catch (Exception)
+            {
+                //Log
+                throw;
+            }
+
+            return Task.CompletedTask;
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("[RabbitMQ Payment] Parando RabbitMQPaymentConsumer...");
             try
             {
                 if (_channel != null)
@@ -122,11 +88,10 @@ namespace CMShop.PaymentAPI.MessageConsumer
                 {
                     await _connection.CloseAsync();
                 }
-                Console.WriteLine("[RabbitMQ Payment] ✅ Consumer parado com sucesso");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"[RabbitMQ Payment] ❌ Erro ao parar consumer: {ex.Message}");
+                // Log error
             }
             await base.StopAsync(stoppingToken);
         }
@@ -138,9 +103,9 @@ namespace CMShop.PaymentAPI.MessageConsumer
                 _channel?.Dispose();
                 _connection?.Dispose();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"[RabbitMQ Payment] ❌ Erro ao fazer dispose: {ex.Message}");
+                // Log error
             }
             base.Dispose();
         }

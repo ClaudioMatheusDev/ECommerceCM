@@ -5,6 +5,8 @@ using CMShop.PaymentAPI.MessageConsumer;
 using CMShop.PaymentAPI.Model.Context;
 using CMShop.PaymentAPI.Repository;
 using CMShop.PaymentAPI.Services;
+using CMShop.PaymentAPI.RabbitMQSender;
+using CMShop.PaymentProcessor;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +30,12 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 // Registrar os serviços
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// Registrar o PaymentProcessor
+builder.Services.AddScoped<IProcessPayment, ProcessPayment>();
+
+// Registrar o RabbitMQMessageSender
+builder.Services.AddScoped<IRabbitMQMessageSender, RabbitMQMessageSender>();
 
 // Registrar o MessageBus
 builder.Services.AddSingleton<IMessageBus, CMShop.MessageBus.MessageBus>();

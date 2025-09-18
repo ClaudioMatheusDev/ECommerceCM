@@ -24,12 +24,15 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Registrar o repositório de pedidos
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+// Registrar RabbitMQ Message Sender
+builder.Services.AddScoped<CMShop.OrderAPI.RabbitMQSender.IRabbitMQMessageSender, CMShop.OrderAPI.RabbitMQSender.RabbitMQMessageSender>();
+
 // Registrar o MessageBus
 builder.Services.AddSingleton<CMShop.MessageBus.IMessageBus, CMShop.MessageBus.MessageBus>();
 
 // Registrar o MessageConsumer
 builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQCheckoutConsumer>();
-builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQPaymentConsumer>();
+builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQPaymentResultConsumer>();
 
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();

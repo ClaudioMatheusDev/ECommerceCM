@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CMShop.MessageBus\CMShop.MessageBus.csproj" />
+    <ProjectReference Include="..\CMShop.PaymentProcessor\CMShop.PaymentProcessor.csproj" />
   </ItemGroup>
 
 </Project>
