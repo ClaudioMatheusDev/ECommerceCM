@@ -151,6 +151,9 @@ const Profile = () => {
                                 <a href="/carrinho" className="btn btn-success btn-sm">
                                     <i className="fas fa-shopping-cart"></i> Meu Carrinho
                                 </a>
+                                <a href="/pedidos" className="btn btn-success btn-sm">
+                                    <i className="fas fa-box"></i> Meus Pedidos
+                                </a>
                                 <hr />
                                 <button className="btn btn-danger btn-sm" onClick={handleLogout}>
                                     <i className="fas fa-sign-out-alt"></i> Logout
