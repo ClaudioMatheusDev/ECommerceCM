@@ -252,14 +252,14 @@ function CreateProduct() {
                   Estoque (Quantidade) *
                 </label>
                 <input
-                  type="integer"
+                  type="number"
                   id="stock"
                   name="stock"
                   className={`form-control ${errors.stock ? 'is-invalid' : ''}`}
                   value={product.stock}
                   onChange={handleChange}
                   placeholder="0"
-                  step="0.01"
+                  step="1"
                   min="0"
                 />
                 {errors.stock && <div className="invalid-feedback">{errors.stock}</div>}
