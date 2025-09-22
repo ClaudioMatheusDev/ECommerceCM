@@ -1,0 +1,6 @@
+@CMShop.PaymentAPI_HostAddress = http://localhost:5294
+
+GET {{CMShop.PaymentAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,114 @@
+:root {
+  --primary: #0d6efd;
+  --card-bg: #fff;
+  --muted: #6c757d;
+  --shadow: 0 8px 20px rgba(2,6,23,0.06);
+  --radius: 12px;
+}
+
+.profile-page {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  color: #24303f;
+}
+
+.profile-page .container {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* cards */
+.profile-page .card {
+  border: none;
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  overflow: visible;
+  margin-bottom: 1.5rem;
+}
+
+/* header */
+.profile-page .card-header.bg-primary {
+  background: linear-gradient(90deg, var(--primary), #3b82f6);
+  color: #fff;
+  border-bottom: none;
+}
+
+/* corpo do card */
+.profile-page .card-body {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* linhas */
+.profile-page .row {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* avatar */
+.profile-page .rounded-circle {
+  width: 100px;
+  height: 100px;
+  font-size: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(#fff, #f7fafc);
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04) inset;
+}
+
+/* títulos */
+.profile-page h4, .profile-page h5, .profile-page h6 {
+  margin: 0;
+}
+
+/* lista de permissões */
+.profile-page .list-group-item {
+  border: none;
+  padding: .5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* botões */
+.acoes-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.acoes-botoes a,
+.acoes-botoes button {
+  min-width: 160px; /* largura mínima para padronizar */
+  text-align: center;
+}
+
+/* Para separar linhas de ação (como <hr>), force quebra de linha: */
+.acoes-botoes hr {
+  flex-basis: 100%;
+  height: 1px;
+  border: none;
+  border-top: 1px dashed #eee;
+  margin: 0.5rem 0;
+}
+/* pequenas melhorias */
+.profile-page hr {
+  border-top: 1px dashed rgba(0,0,0,0.06);
+  margin: 1rem 0;
+}
+
+/* responsivo */
+@media (max-width:767.98px) {
+  .profile-page .rounded-circle { width: 84px; height: 84px; font-size: 34px; }
+  .profile-page .container { padding: 0 .5rem; }
+  .profile-page .card-body { padding-left: .5rem; padding-right: .5rem; }
+}

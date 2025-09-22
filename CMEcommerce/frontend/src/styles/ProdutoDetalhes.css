@@ -82,6 +82,13 @@
   justify-content: center;
 }
 
+.produto-img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
 .produto-icon {
   font-size: 6rem;
 }
@@ -501,6 +508,10 @@
   .produto-image-main {
     padding: 2rem;
   }
+  
+  .produto-img {
+    max-height: 250px;
+  }
 
   .produto-icon {
     font-size: 4rem;
@@ -534,6 +545,10 @@
 
   .produto-header h1 {
     font-size: 1.8rem;
+  }
+
+  .produto-img {
+    max-height: 200px;
   }
 
   .price-current {

@@ -26,20 +26,20 @@ namespace CMShop.CartAPI.RabbitMQSender
             try
             {
                 Console.WriteLine($"[RabbitMQ] Iniciando envio de mensagem para fila: {queueName}");
-                
+
                 var factory = new ConnectionFactory
                 {
                     HostName = _hostName,
                     UserName = _userName,
                     Password = _passWord
                 };
-                
+
                 Console.WriteLine($"[RabbitMQ] Conectando ao RabbitMQ em {_hostName}...");
                 _connection = await factory.CreateConnectionAsync();
-                
+
                 Console.WriteLine($"[RabbitMQ] Conexão estabelecida. Criando canal...");
                 using var channel = await _connection.CreateChannelAsync();
-                
+
                 Console.WriteLine($"[RabbitMQ] Declarando fila: {queueName}");
                 await channel.QueueDeclareAsync(queue: queueName,
                                               durable: false,
@@ -49,11 +49,11 @@ namespace CMShop.CartAPI.RabbitMQSender
 
                 byte[] body = GetMessageAsByteArray(message);
                 Console.WriteLine($"[RabbitMQ] Mensagem serializada. Tamanho: {body.Length} bytes");
-                
+
                 await channel.BasicPublishAsync(exchange: "",
                                                routingKey: queueName,
                                                body: body);
-                
+
                 Console.WriteLine($"[RabbitMQ] ✅ Mensagem enviada com sucesso para fila '{queueName}'");
             }
             catch (Exception ex)
@@ -68,12 +68,15 @@ namespace CMShop.CartAPI.RabbitMQSender
         {
             var options = new JsonSerializerOptions
             {
-               WriteIndented = true
+                WriteIndented = true
             };
 
             var json = JsonSerializer.Serialize<CheckoutHeaderVO>((CheckoutHeaderVO)message, options);
             var body = Encoding.UTF8.GetBytes(json);
             return body;
         }
+
+
+
     }
 }

@@ -28,5 +28,9 @@ namespace CMShop.ProductAPI.Model
         [Column("image_url")]
         [StringLength(300)]
         public string ImageURL { get; set; }
+
+        [Column("stock")]
+        [Required]
+        public int Stock { get; set; } = 0;
     }
 }

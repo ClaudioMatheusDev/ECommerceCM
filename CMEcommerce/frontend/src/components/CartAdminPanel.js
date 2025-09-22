@@ -16,7 +16,32 @@ function CartAdminPanel() {
     try {
       setLoading(true);
       const allCarts = await CartService.getAllCarts();
-      setCarts(allCarts);
+      
+      // Verificar se recebemos um array ou um objeto com propriedades
+      let processedCarts = Array.isArray(allCarts) ? allCarts : [allCarts];
+      
+      // Filtrar valores nulos ou undefined
+      processedCarts = processedCarts.filter(cart => cart !== null && cart !== undefined);
+      
+      // Normalizar a estrutura para garantir compatibilidade
+      processedCarts = processedCarts.map(cart => {
+        // Se não tiver um ID e tiver cartHeader, use o ID do cartHeader
+        if (!cart.id && cart.cartHeader?.id) {
+          return {
+            ...cart,
+            id: cart.cartHeader.id,
+            userId: cart.cartHeader.userId,
+            items: cart.cartDetails || [],
+            createdAt: cart.cartHeader.createdAt || new Date().toISOString(),
+            updatedAt: cart.cartHeader.updatedAt
+          };
+        }
+        return cart;
+      });
+      
+      console.log('Carrinhos processados:', processedCarts);
+      
+      setCarts(processedCarts);
       setError(null);
     } catch (error) {
       console.error('Erro ao carregar carrinhos:', error);
@@ -37,12 +62,23 @@ function CartAdminPanel() {
     return new Date(dateString).toLocaleString('pt-BR');
   };
 
-  const getCartTotal = (cartItems) => {
-    return cartItems.reduce((total, item) => total + (item.productPrice * item.quantity), 0);
+  const getCartTotal = (cartItems = []) => {
+    if (!Array.isArray(cartItems)) return 0;
+    return cartItems.reduce((total, item) => {
+      // Lidar com diferentes formatos de dados (API backend vs frontend)
+      const price = item?.productPrice || item?.price || (item?.product?.price) || 0;
+      const quantity = item?.quantity || item?.count || 0;
+      return total + (price * quantity);
+    }, 0);
   };
 
-  const getCartItemsCount = (cartItems) => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
+  const getCartItemsCount = (cartItems = []) => {
+    if (!Array.isArray(cartItems)) return 0;
+    return cartItems.reduce((count, item) => {
+      // Lidar com diferentes formatos de dados
+      const quantity = item?.quantity || item?.count || 0;
+      return count + quantity;
+    }, 0);
   };
 
   const handleViewCart = (cart) => {
@@ -58,7 +94,9 @@ function CartAdminPanel() {
       try {
         await CartService.clearCart(userId);
         await loadAllCarts();
-        if (selectedCart && selectedCart.id === cartId) {
+        // Verificar o formato correto do ID do carrinho selecionado
+        const selectedCartId = selectedCart?.id || selectedCart?.cartHeader?.id;
+        if (selectedCart && selectedCartId === cartId) {
           setSelectedCart(null);
         }
       } catch (error) {
@@ -109,27 +147,34 @@ function CartAdminPanel() {
             <p>Não há carrinhos ativos no sistema.</p>
           </div>
         ) : (
-          carts.map((cart) => (
-            <div key={cart.id} className="cart-card">
-              <div className="cart-header">
-                <h3>Carrinho #{cart.id}</h3>
-                <span className="user-id">Usuário: {cart.userId}</span>
-              </div>
-              
-              <div className="cart-stats">
-                <div className="stat">
-                  <span className="stat-label">Itens:</span>
-                  <span className="stat-value">{getCartItemsCount(cart.items)}</span>
+          carts.map((cart) => {
+            // Determinar a estrutura correta dos itens do carrinho
+            const cartItems = cart.items || cart.cartDetails || [];
+            const userId = cart.userId || cart.cartHeader?.userId;
+            const cartId = cart.id || cart.cartHeader?.id;
+            const lastUpdate = cart.updatedAt || cart.cartHeader?.updatedAt || cart.createdAt || cart.cartHeader?.createdAt || new Date();
+            
+            return (
+              <div key={cartId} className="cart-card">
+                <div className="cart-header">
+                  <h3>Carrinho #{cartId}</h3>
+                  <span className="user-id">Usuário: {userId}</span>
                 </div>
-                <div className="stat">
-                  <span className="stat-label">Total:</span>
-                  <span className="stat-value">{formatPrice(getCartTotal(cart.items))}</span>
+                
+                <div className="cart-stats">
+                  <div className="stat">
+                    <span className="stat-label">Itens:</span>
+                    <span className="stat-value">{getCartItemsCount(cartItems)}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Total:</span>
+                    <span className="stat-value">{formatPrice(getCartTotal(cartItems))}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Última atualização:</span>
+                    <span className="stat-value">{formatDate(lastUpdate)}</span>
+                  </div>
                 </div>
-                <div className="stat">
-                  <span className="stat-label">Última atualização:</span>
-                  <span className="stat-value">{formatDate(cart.updatedAt || cart.createdAt)}</span>
-                </div>
-              </div>
 
               <div className="cart-actions">
                 <button 
@@ -139,14 +184,14 @@ function CartAdminPanel() {
                   👁️ Ver Detalhes
                 </button>
                 <button 
-                  onClick={() => handleClearCart(cart.id, cart.userId)}
+                  onClick={() => handleClearCart(cartId, userId)}
                   className="clear-btn"
                 >
                   🗑️ Limpar
                 </button>
               </div>
             </div>
-          ))
+          );})
         )}
       </div>
 
@@ -155,7 +200,7 @@ function CartAdminPanel() {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Detalhes do Carrinho #{selectedCart.id}</h2>
+              <h2>Detalhes do Carrinho #{selectedCart.id || selectedCart.cartHeader?.id}</h2>
               <button onClick={handleCloseModal} className="close-btn">
                 ✕
               </button>
@@ -163,37 +208,53 @@ function CartAdminPanel() {
             
             <div className="modal-body">
               <div className="cart-info">
-                <p><strong>Usuário:</strong> {selectedCart.userId}</p>
-                <p><strong>Total de Itens:</strong> {getCartItemsCount(selectedCart.items)}</p>
-                <p><strong>Valor Total:</strong> {formatPrice(getCartTotal(selectedCart.items))}</p>
-                <p><strong>Criado em:</strong> {formatDate(selectedCart.createdAt)}</p>
-                {selectedCart.updatedAt && (
-                  <p><strong>Atualizado em:</strong> {formatDate(selectedCart.updatedAt)}</p>
-                )}
+                <p><strong>Usuário:</strong> {selectedCart.userId || selectedCart.cartHeader?.userId}</p>
+                {/* Usar a função normalizada para itens */}
+                {(() => {
+                  const cartItems = selectedCart.items || selectedCart.cartDetails || [];
+                  const createdAt = selectedCart.createdAt || selectedCart.cartHeader?.createdAt;
+                  const updatedAt = selectedCart.updatedAt || selectedCart.cartHeader?.updatedAt;
+                  
+                  return (
+                    <>
+                      <p><strong>Total de Itens:</strong> {getCartItemsCount(cartItems)}</p>
+                      <p><strong>Valor Total:</strong> {formatPrice(getCartTotal(cartItems))}</p>
+                      {createdAt && <p><strong>Criado em:</strong> {formatDate(createdAt)}</p>}
+                      {updatedAt && <p><strong>Atualizado em:</strong> {formatDate(updatedAt)}</p>}
+                    </>
+                  );
+                })()} 
               </div>
               
               <div className="cart-items">
                 <h3>Itens do Carrinho:</h3>
-                {selectedCart.items.length === 0 ? (
-                  <p className="no-items">Carrinho vazio</p>
-                ) : (
-                  <div className="items-list">
-                    {selectedCart.items.map((item, index) => (
+                {(() => {
+                  const cartItems = selectedCart.items || selectedCart.cartDetails || [];
+                  
+                  return cartItems.length === 0 ? (
+                    <p className="no-items">Carrinho vazio</p>
+                  ) : (
+                    <div className="items-list">
+                      {cartItems.map((item, index) => (
                       <div key={index} className="item-row">
                         <div className="item-info">
-                          <strong>{item.productName}</strong>
-                          <span className="item-price">{formatPrice(item.productPrice)}</span>
+                          <strong>{item.productName || item.product?.name || 'Produto'}</strong>
+                          <span className="item-price">{formatPrice(item.productPrice || item.price || item.product?.price || 0)}</span>
                         </div>
                         <div className="item-quantity">
-                          Qtd: {item.quantity}
+                          Qtd: {item.quantity || item.count || 0}
                         </div>
                         <div className="item-total">
-                          {formatPrice(item.productPrice * item.quantity)}
+                          {formatPrice(
+                            (item.productPrice || item.price || item.product?.price || 0) * 
+                            (item.quantity || item.count || 0)
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           </div>

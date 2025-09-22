@@ -1,5 +1,7 @@
-﻿using CMShop.OrderAPI.Mensagens;
+﻿using CMShop.MessageBus;
+using CMShop.OrderAPI.Mensagens;
 using CMShop.OrderAPI.Model;
+using CMShop.OrderAPI.RabbitMQSender;
 using CMShop.OrderAPI.Repository;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -170,6 +172,9 @@ namespace CMShop.OrderAPI.MessageConsumer
                 if (result)
                 {
                     Console.WriteLine($"[ProcessorOrder] ✅ Pedido salvo com sucesso no banco de dados!");
+                    
+                    // Enviar mensagem para processamento de pagamento
+                    await SendPaymentMessage(order, vo);
                 }
                 else
                 {
@@ -180,6 +185,53 @@ namespace CMShop.OrderAPI.MessageConsumer
             {
                 Console.WriteLine($"[ProcessorOrder] ❌ EXCEÇÃO: {ex.Message}");
                 Console.WriteLine($"[ProcessorOrder] StackTrace: {ex.StackTrace}");
+            }
+        }
+
+        private async Task SendPaymentMessage(OrderHeader order, CheckoutHeaderVO vo)
+        {
+            try
+            {
+                Console.WriteLine($"[SendPaymentMessage] Enviando mensagem de pagamento para pedido {order.Id}");
+                
+                // Extrair mês e ano do cartão
+                var expiryParts = vo.ExpiryMonthYear?.Split('/') ?? new[] { "12", "25" };
+                int expiryMonth = 12;
+                int expiryYear = 25;
+                
+                if (expiryParts.Length >= 2)
+                {
+                    int.TryParse(expiryParts[0], out expiryMonth);
+                    int.TryParse(expiryParts[1], out expiryYear);
+                    if (expiryYear < 100) expiryYear += 2000; 
+                }
+
+                var paymentMessage = new PaymentMessage
+                {
+                    OrderId = order.Id,
+                    UserId = order.UserId,
+                    Email = order.Email,
+                    CardNumber = order.CardNumber,
+                    CardExpiryMonth = expiryMonth,
+                    CardExpiryYear = expiryYear,
+                    CardSecurityCode = order.CVV,
+                    CardHolderName = $"{order.FirstName} {order.LastName}",
+                    Amount = order.PurchaseAmount
+                };
+
+                // Usar ServiceProvider para resolver IRabbitMQMessageSender
+                using var scope = _serviceProvider.CreateScope();
+                var rabbitMQMessageSender = scope.ServiceProvider.GetRequiredService<IRabbitMQMessageSender>();
+                
+                const string queueName = "orderpaymentprocessqueue";
+                await rabbitMQMessageSender.SendMessage(paymentMessage, queueName);
+                
+                Console.WriteLine($"[SendPaymentMessage] ✅ Mensagem de pagamento enviada para fila '{queueName}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SendPaymentMessage] ❌ Erro ao enviar mensagem de pagamento: {ex.Message}");
+                Console.WriteLine($"[SendPaymentMessage] StackTrace: {ex.StackTrace}");
             }
         }
 

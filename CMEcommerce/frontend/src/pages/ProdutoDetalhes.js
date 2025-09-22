@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { findProductById } from '../services/ProductService';
-import { useCart } from '../context/CartContext';
-import '../styles/ProdutoDetalhes.css';
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { findProductById } from "../services/ProductService";
+import { useCart } from "../context/CartContext";
+import "../styles/ProdutoDetalhes.css";
 
 function ProdutoDetalhes() {
   const { id } = useParams();
   const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useState("");
   const [quantidade, setQuantidade] = useState(1);
   const { addToCart } = useCart();
 
   useEffect(() => {
     findProductById(id)
-      .then(data => setProduto(data))
-      .catch(e => setErro(e.message))
+      .then((data) => setProduto(data))
+      .catch((e) => setErro(e.message))
       .finally(() => setLoading(false));
   }, [id]);
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
   };
 
@@ -57,7 +57,7 @@ function ProdutoDetalhes() {
           <div className="error-section">
             <div className="error-icon">⚠️</div>
             <h3>Produto não encontrado</h3>
-            <p>{erro || 'O produto que você procura não existe.'}</p>
+            <p>{erro || "O produto que você procura não existe."}</p>
             <Link to="/loja" className="btn btn-primary">
               Voltar à Loja
             </Link>
@@ -87,19 +87,46 @@ function ProdutoDetalhes() {
           {/* Imagem do Produto */}
           <div className="produto-image-section">
             <div className="produto-image-main">
-              <span className="produto-icon">📱</span>
-              <div className="produto-badge">
-                ID: {produto.id}
-              </div>
+              { (produto.imageURL || produto.ImageURL) ? (
+                <img
+                  className="produto-img"
+                  src={
+                    produto.imageURL ||
+                    produto.imageUrl ||
+                    (produto.images && produto.images.length > 0 && produto.images[0])
+                  }
+                  alt={produto.name || "Produto"}
+                  onError={(e) => {
+                    e.currentTarget.src = "/fallback-image.png"; // opcional: fallback local
+                  }}
+                />
+              ) : (
+                <span className="produto-icon">📱</span>
+              )}
+              <div className="produto-badge">ID: {produto.id}</div>
             </div>
+
             <div className="produto-thumbnails">
-              <div className="thumbnail active">📱</div>
-              <div className="thumbnail">📷</div>
-              <div className="thumbnail">🔍</div>
+              {(produto.images && produto.images.length > 0
+                ? produto.images
+                : [produto.imageURL || produto.imageUrl]
+              ).map((img, idx) =>
+                img ? (
+                  <img
+                    key={idx}
+                    className={`thumbnail ${idx === 0 ? "active" : ""}`}
+                    src={img}
+                    alt={`${produto.name || "thumb"} ${idx + 1}`}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div key={idx} className="thumbnail">📷</div>
+                )
+              )}
             </div>
           </div>
-
-          {/* Informações do Produto */}
           <div className="produto-info-section">
             <div className="produto-header">
               <h1 className="produto-title">{produto.name}</h1>
@@ -111,23 +138,53 @@ function ProdutoDetalhes() {
 
             <div className="produto-price-section">
               <div className="price-current">{formatPrice(produto.price)}</div>
-              <div className="price-original">{formatPrice(produto.price * 1.2)}</div>
+              <div className="price-original">
+                {formatPrice(produto.price * 1.2)}
+              </div>
               <div className="price-discount">20% OFF</div>
             </div>
 
             <div className="produto-description">
               <h3>Descrição</h3>
-              <p>{produto.description || 'Este é um produto de alta qualidade com excelente custo-benefício. Ideal para quem busca performance e durabilidade.'}</p>
+              <p>
+                {produto.description ||
+                  "Este é um produto de alta qualidade com excelente custo-benefício. Ideal para quem busca performance e durabilidade."}
+              </p>
             </div>
 
             <div className="produto-details">
               <h3>Detalhes do Produto</h3>
               <ul>
-                <li><strong>Categoria:</strong> {produto.categoryName || 'Eletrônicos'}</li>
-                <li><strong>Código:</strong> #{produto.id}</li>
-                <li><strong>Disponibilidade:</strong> <span className="in-stock">Em estoque</span></li>
-                <li><strong>Garantia:</strong> 12 meses</li>
-                <li><strong>Marca:</strong> Premium</li>
+                <li>
+                  <strong>Categoria:</strong>{" "}
+                  {produto.categoryName || "Eletrônicos"}
+                </li>
+                <li>
+                  <strong>Código:</strong> #{produto.id}
+                </li>
+                <li>
+                  <strong>Disponibilidade:</strong>{" "}
+                  <span className="in-stock">
+                    {" "}
+                    <div>
+                      <div
+                        className={`product-stock ${
+                          produto.stock > 0 ? "in-stock" : "out-of-stock"
+                        }`}
+                      >
+                        {produto.stock > 0
+                          ? `Em Estoque: ${produto.stock}`
+                          : "Esgotado"}
+                      </div>
+                    </div>
+                  </span>
+                </li>
+                <li>
+                  <strong>Garantia:</strong> 12 meses
+                </li>
+                <li>
+                  <strong>Marca:</strong> Premium
+                </li>
               </ul>
             </div>
 
@@ -135,14 +192,14 @@ function ProdutoDetalhes() {
               <div className="quantity-section">
                 <label>Quantidade:</label>
                 <div className="quantity-controls">
-                  <button 
+                  <button
                     className="quantity-btn"
                     onClick={() => setQuantidade(Math.max(1, quantidade - 1))}
                   >
                     -
                   </button>
                   <span className="quantity-value">{quantidade}</span>
-                  <button 
+                  <button
                     className="quantity-btn"
                     onClick={() => setQuantidade(quantidade + 1)}
                   >
@@ -152,7 +209,7 @@ function ProdutoDetalhes() {
               </div>
 
               <div className="action-buttons">
-                <button 
+                <button
                   className="btn btn-primary btn-large"
                   onClick={handleAddToCart}
                 >
@@ -196,7 +253,7 @@ function ProdutoDetalhes() {
         <div className="related-products">
           <h2 className="section-title">Produtos Relacionados</h2>
           <div className="related-grid">
-            {[1, 2, 3, 4].map(item => (
+            {[1, 2, 3, 4].map((item) => (
               <div key={item} className="related-card">
                 <div className="related-image">📱</div>
                 <h4>Produto Relacionado {item}</h4>

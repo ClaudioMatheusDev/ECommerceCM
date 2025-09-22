@@ -58,6 +58,10 @@ namespace CMShop.ProductAPI.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("Price");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int")
+                        .HasColumnName("stock");
+
                     b.HasKey("Id");
 
                     b.ToTable("product");
@@ -70,7 +74,8 @@ namespace CMShop.ProductAPI.Migrations
                             Description = "Power Bank com 2 saídas USB, ideal para carregar dispositivos em qualquer lugar. Alta capacidade e carregamento rápido.",
                             ImageURL = "https://images.pexels.com/photos/518530/pexels-photo-518530.jpeg",
                             Name = "Carregador Portátil Power Bank Inova 20000mAh",
-                            Price = 69.6m
+                            Price = 69.6m,
+                            Stock = 0
                         },
                         new
                         {
@@ -79,7 +84,8 @@ namespace CMShop.ProductAPI.Migrations
                             Description = "Fone de ouvido com conexão Bluetooth, som JBL Pure Bass, até 40h de bateria e design dobrável para maior praticidade.",
                             ImageURL = "https://images.pexels.com/photos/20285555/pexels-photo-20285555.jpeg",
                             Name = "Fone de Ouvido Bluetooth JBL Tune 510BT",
-                            Price = 219.9m
+                            Price = 219.9m,
+                            Stock = 0
                         },
                         new
                         {
@@ -88,7 +94,8 @@ namespace CMShop.ProductAPI.Migrations
                             Description = "Relógio inteligente com monitoramento de saúde, GPS integrado, resistência à água 5ATM e até 9 dias de bateria.",
                             ImageURL = "https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg",
                             Name = "Smartwatch Amazfit Bip U Pro GPS",
-                            Price = 349.99m
+                            Price = 349.99m,
+                            Stock = 0
                         },
                         new
                         {
@@ -97,7 +104,8 @@ namespace CMShop.ProductAPI.Migrations
                             Description = "Cabo USB-C resistente com carregamento turbo de 3A. Compatível com celulares Android, ideal para uso diário.",
                             ImageURL = "https://images.pexels.com/photos/4219863/pexels-photo-4219863.jpeg",
                             Name = "Cabo USB-C Turbo 3A 1m Nylon Reforçado",
-                            Price = 24.9m
+                            Price = 24.9m,
+                            Stock = 0
                         });
                 });
 #pragma warning restore 612, 618

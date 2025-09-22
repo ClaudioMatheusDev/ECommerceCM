@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import authService from '../services/AuthService';
+import '../styles/Profile.css';
 
 const Profile = () => {
     const { user, isAuthenticated, logout } = useAuth();
@@ -12,7 +13,7 @@ const Profile = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="container mt-5">
+            <div className="container mt-5 profile-page">
                 <div className="row justify-content-center">
                     <div className="col-md-6">
                         <div className="card">
@@ -29,7 +30,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 profile-page">
             <div className="row">
                 <div className="col-md-8">
                     <div className="card">
@@ -131,23 +132,27 @@ const Profile = () => {
                             <h5><i className="fas fa-cog"></i> Ações da Conta</h5>
                         </div>
                         <div className="card-body">
-                            <div className="d-grid gap-2">
+                            <div className="acoes-botoes">
                                 {authService.isAdmin() && (
                                     <>
-                                        <a href="/admin" className="btn btn-warning btn-sm">
+                                        <a href="/admin" className="btn btn-danger btn-sm">
                                             <i className="fas fa-tools"></i> Painel Admin
                                         </a>
-                                        <a href="/admin/produtos/criar" className="btn btn-success btn-sm">
-                                            <i className="fas fa-plus"></i> Criar Produto
+
+                                        <a href="/produto" className="btn btn-danger btn-sm">
+                                        <i className="fas fa-tools">Painel de Produtos</i>
                                         </a>
                                         <hr />
                                     </>
                                 )}
-                                <a href="/loja" className="btn btn-primary btn-sm">
+                                <a href="/loja" className="btn btn-danger btn-sm">
                                     <i className="fas fa-shopping-bag"></i> Ver Loja
                                 </a>
-                                <a href="/carrinho" className="btn btn-info btn-sm">
+                                <a href="/carrinho" className="btn btn-success btn-sm">
                                     <i className="fas fa-shopping-cart"></i> Meu Carrinho
+                                </a>
+                                <a href="/pedidos" className="btn btn-success btn-sm">
+                                    <i className="fas fa-box"></i> Meus Pedidos
                                 </a>
                                 <hr />
                                 <button className="btn btn-danger btn-sm" onClick={handleLogout}>
@@ -164,7 +169,6 @@ const Profile = () => {
                         <div className="card-body">
                             <div className="small">
                                 <p><strong>Autenticado:</strong> <span className="text-success">✓ Sim</span></p>
-                                <p><strong>Token:</strong> <span className="text-success">✓ Válido</span></p>
                                 <p><strong>Última Atividade:</strong> Agora</p>
                             </div>
                         </div>
