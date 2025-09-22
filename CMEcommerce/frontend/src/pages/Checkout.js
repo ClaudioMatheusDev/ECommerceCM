@@ -142,7 +142,7 @@ const Checkout = () => {
         Email: formData.email,
         CardNumber: formData.cardNumber.replace(/\s/g, ''),
         CVV: formData.cvv,
-        ExpiryMothYear: `${formData.expiryMonth}/${formData.expiryYear}`,
+        ExpiryMonthYear: `${formData.expiryMonth}/${formData.expiryYear}`,
         CartTotalItems: items.length
         // DateTime e CartDetails são preenchidos pelo backend
       };

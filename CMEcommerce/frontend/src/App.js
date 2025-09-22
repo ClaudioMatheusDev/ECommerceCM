@@ -20,7 +20,6 @@ import UpdateProduct from './pages/UpdateProduct';
 import DeleteProduct from './pages/DeleteProduct';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import AdminProductForm from './pages/AdminProductForm';
 import './App.css';
 
 function App() {
@@ -60,8 +59,7 @@ function App() {
                     </>
                   )}
                   
-                  <Link to="/admin" className="nav-link admin-link">Admin</Link>
-                  <Link to="/carrinho" className="nav-link cart-link">
+                      <Link to="/carrinho" className="nav-link cart-link">
                     🛒 Carrinho
                   </Link>
                 </div>
@@ -84,14 +82,7 @@ function App() {
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/debug" element={<UserDebug />} />
-                
-                {/* Rotas protegidas apenas para Admin */}
-                <Route path="/admin/produtos/criar" element={
-                  <ProtectedRoute requiredRole="Admin">
-                    <AdminProductForm />
-                  </ProtectedRoute>
-                } />
-                
+                                
                 {/* Rotas antigas mantidas para compatibilidade - também protegidas */}
                 <Route path="/product-create" element={
                   <ProtectedRoute requiredRole="Admin">

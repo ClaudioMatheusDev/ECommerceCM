@@ -138,6 +138,46 @@
       "UpstreamPathTemplate": "/app/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "Key": "frontend"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/payment/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7005
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/payment/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "Key": "payment",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 30,
+        "PeriodTimespan": 60
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/payment",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7005
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/payments",
+      "UpstreamHttpMethod": [ "GET", "POST" ],
+      "Key": "payment-list",
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "Limit": 20,
+        "PeriodTimespan": 60
+      }
     }
   ],
   "Aggregates": [
@@ -148,6 +188,15 @@
       "ReRouteKeysConfig": {
         "products": "ProductDetails",
         "products-list": "ProductsList"
+      }
+    },
+    {
+      "RouteKeys": [ "payment", "payment-list" ],
+      "UpstreamPathTemplate": "/gateway/aggregated/payments",
+      "UpstreamHttpMethod": [ "GET" ],
+      "ReRouteKeysConfig": {
+        "payment": "PaymentDetails",
+        "payment-list": "PaymentsList"
       }
     }
   ],

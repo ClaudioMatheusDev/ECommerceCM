@@ -1,5 +1,7 @@
-﻿using CMShop.OrderAPI.Mensagens;
+﻿using CMShop.MessageBus;
+using CMShop.OrderAPI.Mensagens;
 using CMShop.OrderAPI.Model;
+using CMShop.OrderAPI.RabbitMQSender;
 using CMShop.OrderAPI.Repository;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -16,84 +18,221 @@ namespace CMShop.OrderAPI.MessageConsumer
 
         public RabbitMQCheckoutConsumer(IServiceProvider serviceProvider)
         {
+            Console.WriteLine("[RabbitMQ] Inicializando RabbitMQCheckoutConsumer...");
             _serviceProvider = serviceProvider;
-            var factory = new ConnectionFactory
+            try
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
-            _connection = factory.CreateConnectionAsync().Result;
-            _channel = _connection.CreateChannelAsync().Result;
-            _channel.QueueDeclareAsync(queue: "checkoutqueue",
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
+                var factory = new ConnectionFactory
+                {
+                    HostName = "localhost",
+                    UserName = "guest",
+                    Password = "guest"
+                };
+                Console.WriteLine("[RabbitMQ] Criando conexão com RabbitMQ...");
+                _connection = factory.CreateConnectionAsync().Result;
+                Console.WriteLine("[RabbitMQ] Conexão criada com sucesso!");
+                
+                Console.WriteLine("[RabbitMQ] Criando canal...");
+                _channel = _connection.CreateChannelAsync().Result;
+                Console.WriteLine("[RabbitMQ] Canal criado com sucesso!");
+                
+                Console.WriteLine("[RabbitMQ] Declarando fila checkoutqueue...");
+                _channel.QueueDeclareAsync(queue: "checkoutqueue",
+                                         durable: false,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
+                Console.WriteLine("[RabbitMQ] Fila declarada com sucesso!");
+                Console.WriteLine("[RabbitMQ] RabbitMQCheckoutConsumer inicializado com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[RabbitMQ] ERRO na inicialização: {ex.Message}");
+                Console.WriteLine($"[RabbitMQ] Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            Console.WriteLine("[RabbitMQ] ExecuteAsync iniciado!");
             stoppingToken.ThrowIfCancellationRequested();
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.ReceivedAsync += async (_channel, ea) =>
+            try
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                CheckoutHeaderVO? vo = JsonSerializer.Deserialize<CheckoutHeaderVO>(message);
-                if (vo != null)
+                Console.WriteLine("[RabbitMQ] Criando consumer...");
+                var consumer = new AsyncEventingBasicConsumer(_channel);
+                Console.WriteLine("[RabbitMQ] Consumer criado!");
+                
+                consumer.ReceivedAsync += async (_channel, ea) =>
+            {
+                try
                 {
-                    await ProcessorOrder(vo);
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    
+                    Console.WriteLine($"[RabbitMQ] Mensagem recebida: {message}");
+                    
+                    CheckoutHeaderVO? vo = JsonSerializer.Deserialize<CheckoutHeaderVO>(message);
+                    if (vo != null)
+                    {
+                        Console.WriteLine($"[RabbitMQ] Processando pedido para usuário: {vo.UserID}");
+                        Console.WriteLine($"[RabbitMQ] ExpiryMonthYear recebido: '{vo.ExpiryMonthYear ?? "NULL"}'");
+                        Console.WriteLine($"[RabbitMQ] CardNumber recebido: '{vo.CardNumber ?? "NULL"}'");
+                        Console.WriteLine($"[RabbitMQ] CVV recebido: '{vo.CVV ?? "NULL"}'");
+                        await ProcessorOrder(vo);
+                        Console.WriteLine($"[RabbitMQ] Pedido processado com sucesso!");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[RabbitMQ] ERRO: Não foi possível deserializar a mensagem");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[RabbitMQ] ERRO ao processar mensagem: {ex.Message}");
+                    Console.WriteLine($"[RabbitMQ] StackTrace: {ex.StackTrace}");
                 }
                 await Task.CompletedTask;
             };
 
-            await _channel.BasicConsumeAsync(queue: "checkoutqueue",
-                                           autoAck: true,
-                                           consumer: consumer);
+                await _channel.BasicConsumeAsync(queue: "checkoutqueue",
+                                               autoAck: true,
+                                               consumer: consumer);
+                
+                Console.WriteLine("[RabbitMQ] Consumer registrado! Aguardando mensagens...");
 
-            while (!stoppingToken.IsCancellationRequested)
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    await Task.Delay(1000, stoppingToken);
+                }
+            }
+            catch (Exception ex)
             {
-                await Task.Delay(1000, stoppingToken);
+                Console.WriteLine($"[RabbitMQ] ERRO FATAL no ExecuteAsync: {ex.Message}");
+                Console.WriteLine($"[RabbitMQ] StackTrace: {ex.StackTrace}");
+                throw;
             }
         }
 
         private async Task ProcessorOrder(CheckoutHeaderVO vo)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
-
-            OrderHeader order = new()
+            try
             {
-                UserId = vo.UserID,
-                FirstName = vo.FirstName,
-                LastName = vo.LastName,
-                OrderDetails = new List<OrderDetail>(),
-                CardNumber = vo.CardNumber,
-                CouponCode = vo.CouponCode,
-                CVV = vo.CVV,
-                DiscountAmount = vo.DiscountAmount,
-                Email = vo.Email,
-                ExpiryMonthYear = vo.ExpiryMonthYear,
-                OrderTime = DateTime.Now,
-                PaymentStatus = false,
-                Phone = vo.Phone
-            };
+                Console.WriteLine($"[ProcessorOrder] Iniciando processamento para usuário: {vo.UserID}");
+                
+                using var scope = _serviceProvider.CreateScope();
+                var repository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
 
-            foreach (var detail in vo.CartDetails)
-            {
-                OrderDetail orderDetail = new()
+                Console.WriteLine($"[ProcessorOrder] Repository obtido com sucesso");
+
+                OrderHeader order = new()
                 {
-                    ProductId = detail.ProductId,
-                    ProductName = detail.Product?.Name ?? "Produto",
-                    Price = detail.Product?.Price ?? 0,
-                    Count = detail.Count
+                    UserId = vo.UserID,
+                    FirstName = vo.FirstName ?? "Cliente",
+                    LastName = vo.LastName ?? "",
+                    OrderDetails = new List<OrderDetail>(),
+                    CardNumber = vo.CardNumber ?? "****-****-****-****",
+                    CouponCode = vo.CouponCode ?? "",
+                    CVV = vo.CVV ?? "***",
+                    DiscountAmount = vo.DiscountAmount,
+                    Email = vo.Email ?? "cliente@email.com",
+                    ExpiryMonthYear = vo.ExpiryMonthYear ?? "12/25",
+                    OrderTime = DateTime.Now,
+                    PaymentStatus = false,
+                    Phone = vo.Phone ?? "000-000-0000",
+                    PurchaseAmount = vo.PurchaseAmount,
+                    CartTotalItems = vo.CartTotalItems
                 };
-                order.CartTotalItems += detail.Count;
-                order.OrderDetails.Add(orderDetail);
+
+                Console.WriteLine($"[ProcessorOrder] OrderHeader criado. CartDetails count: {vo.CartDetails?.Count() ?? 0}");
+
+                foreach (var detail in vo.CartDetails ?? new List<CartDetailVO>())
+                {
+                    OrderDetail orderDetail = new()
+                    {
+                        ProductId = detail.ProductId,
+                        ProductName = detail.Product?.Name ?? "Produto",
+                        Price = detail.Product?.Price ?? 0,
+                        Count = detail.Count
+                    };
+                    order.CartTotalItems += detail.Count;
+                    order.OrderDetails.Add(orderDetail);
+                    
+                    Console.WriteLine($"[ProcessorOrder] Adicionado item: {orderDetail.ProductName}, Quantidade: {orderDetail.Count}");
+                }
+                
+                Console.WriteLine($"[ProcessorOrder] Total de itens: {order.CartTotalItems}");
+                Console.WriteLine($"[ProcessorOrder] Chamando repository.AddOrder...");
+                
+                var result = await repository.AddOrder(order);
+                
+                Console.WriteLine($"[ProcessorOrder] Resultado AddOrder: {result}");
+                
+                if (result)
+                {
+                    Console.WriteLine($"[ProcessorOrder] ✅ Pedido salvo com sucesso no banco de dados!");
+                    
+                    // Enviar mensagem para processamento de pagamento
+                    await SendPaymentMessage(order, vo);
+                }
+                else
+                {
+                    Console.WriteLine($"[ProcessorOrder] ❌ ERRO: AddOrder retornou false");
+                }
             }
-            await repository.AddOrder(order);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ProcessorOrder] ❌ EXCEÇÃO: {ex.Message}");
+                Console.WriteLine($"[ProcessorOrder] StackTrace: {ex.StackTrace}");
+            }
+        }
+
+        private async Task SendPaymentMessage(OrderHeader order, CheckoutHeaderVO vo)
+        {
+            try
+            {
+                Console.WriteLine($"[SendPaymentMessage] Enviando mensagem de pagamento para pedido {order.Id}");
+                
+                // Extrair mês e ano do cartão
+                var expiryParts = vo.ExpiryMonthYear?.Split('/') ?? new[] { "12", "25" };
+                int expiryMonth = 12;
+                int expiryYear = 25;
+                
+                if (expiryParts.Length >= 2)
+                {
+                    int.TryParse(expiryParts[0], out expiryMonth);
+                    int.TryParse(expiryParts[1], out expiryYear);
+                    if (expiryYear < 100) expiryYear += 2000; 
+                }
+
+                var paymentMessage = new PaymentMessage
+                {
+                    OrderId = order.Id,
+                    UserId = order.UserId,
+                    Email = order.Email,
+                    CardNumber = order.CardNumber,
+                    CardExpiryMonth = expiryMonth,
+                    CardExpiryYear = expiryYear,
+                    CardSecurityCode = order.CVV,
+                    CardHolderName = $"{order.FirstName} {order.LastName}",
+                    Amount = order.PurchaseAmount
+                };
+
+                // Usar ServiceProvider para resolver IRabbitMQMessageSender
+                using var scope = _serviceProvider.CreateScope();
+                var rabbitMQMessageSender = scope.ServiceProvider.GetRequiredService<IRabbitMQMessageSender>();
+                
+                const string queueName = "orderpaymentprocessqueue";
+                await rabbitMQMessageSender.SendMessage(paymentMessage, queueName);
+                
+                Console.WriteLine($"[SendPaymentMessage] ✅ Mensagem de pagamento enviada para fila '{queueName}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SendPaymentMessage] ❌ Erro ao enviar mensagem de pagamento: {ex.Message}");
+                Console.WriteLine($"[SendPaymentMessage] StackTrace: {ex.StackTrace}");
+            }
         }
 
         public override void Dispose()

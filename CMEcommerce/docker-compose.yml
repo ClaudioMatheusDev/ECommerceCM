@@ -64,6 +64,23 @@ services:
     networks:
       - cmshop-network
 
+  # Payment API
+  payment-api:
+    build:
+      context: .
+      dockerfile: CMShop.PaymentAPI/Dockerfile
+    ports:
+      - "7005:7005"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7005
+      - SqlContext__SqlConnectionString=Server=sql-server;Database=CMShopPaymentAPI;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+    depends_on:
+      - sql-server
+      - rabbitmq
+    networks:
+      - cmshop-network
+
   # SQL Server
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest

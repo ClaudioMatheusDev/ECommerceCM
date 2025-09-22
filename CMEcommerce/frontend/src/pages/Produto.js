@@ -104,7 +104,22 @@ function Produtos() {
                   {produtos.map((produto) => (
                     <div key={produto.id} className="product-card">
                       <div className="product-image">
-                        <span className="product-icon">📱</span>
+                        { (produto.imageURL || produto.ImageURL) ? (
+                          <img
+                            src={produto.imageURL || produto.ImageURL}
+                            alt={produto.name || 'Produto'}
+                            className="product-img"
+                            loading="lazy"
+                            onError={(e) => {
+                             
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = '/images/product-placeholder.png';
+                            }}
+                          />
+                        ) : (
+                          <div className="product-placeholder">📱</div>
+                        )}
+
                         <div className="product-badge">
                           ID: {produto.id}
                         </div>
@@ -130,7 +145,13 @@ function Produtos() {
                           <div className="product-price">
                             {formatPrice(produto.price)}
                           </div>
+                          <div>
+                            <div className={`product-stock ${produto.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                              {produto.stock > 0 ? `Em Estoque: ${produto.stock}` : 'Esgotado'}
+                            </div>
+                          </div>
                         </div>
+
                         
                         <div className="product-actions">
                           <Link 

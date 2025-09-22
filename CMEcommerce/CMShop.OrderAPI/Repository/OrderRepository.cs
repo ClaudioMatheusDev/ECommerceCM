@@ -77,7 +77,6 @@ namespace CMShop.OrderAPI.Repository
                 _context.OrderHeaders.Add(orderHeader);
                 await _context.SaveChangesAsync();
 
-                // Mapear os OrderDetails com o ID correto do OrderHeader
                 foreach (var detailVO in orderVO.OrderDetails)
                 {
                     var orderDetail = _mapper.Map<OrderDetail>(detailVO);

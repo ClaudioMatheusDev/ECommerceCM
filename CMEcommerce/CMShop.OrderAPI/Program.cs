@@ -2,10 +2,12 @@ using AutoMapper;
 using CMShop.OrderAPI.Config;
 using CMShop.OrderAPI.Model.Context;
 using CMShop.OrderAPI.Repository;
+using CMShop.OrderAPI.MessageConsumer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using CMShop.OrderAPI.RabbitMQSender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +26,17 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Registrar o repositório de pedidos
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+// Registrar RabbitMQ Message Sender
+builder.Services.AddScoped<CMShop.OrderAPI.RabbitMQSender.IRabbitMQMessageSender, CMShop.OrderAPI.RabbitMQSender.RabbitMQMessageSender>();
+
+// Registrar o MessageBus
+builder.Services.AddSingleton<CMShop.MessageBus.IMessageBus, CMShop.MessageBus.MessageBus>();
+
+builder.Services.AddSingleton<IRabbitMQMessageSender, RabbitMQMessageSender>();
+
 // Registrar o MessageConsumer
 builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQCheckoutConsumer>();
+builder.Services.AddHostedService<CMShop.OrderAPI.MessageConsumer.RabbitMQPaymentResultConsumer>();
 
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
