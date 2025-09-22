@@ -139,7 +139,7 @@ const Profile = () => {
                                             <i className="fas fa-tools"></i> Painel Admin
                                         </a>
 
-                                        <a href="/produto" className="btn btn=danger btn-sm">
+                                        <a href="/produto" className="btn btn-danger btn-sm">
                                         <i className="fas fa-tools">Painel de Produtos</i>
                                         </a>
                                         <hr />

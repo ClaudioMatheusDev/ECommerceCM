@@ -104,7 +104,6 @@ function Produtos() {
                   {produtos.map((produto) => (
                     <div key={produto.id} className="product-card">
                       <div className="product-image">
-                        {}
                         { (produto.imageURL || produto.ImageURL) ? (
                           <img
                             src={produto.imageURL || produto.ImageURL}
