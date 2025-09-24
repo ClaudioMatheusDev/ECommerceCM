@@ -1,17 +1,40 @@
 @page
 @model foo.Pages.Logout.Index
 
-<div class="logout-page">
+<div class="login-page">
     <div class="lead">
-        <h1>Logout</h1>
-        <p>Would you like to logout of IdentityServer?</p>
+        <i class="fas fa-sign-out-alt fa-2x mb-3" style="color: #667eea;"></i>
+        <h1>Sair da Conta</h1>
+        <p>Deseja realmente sair da sua conta na CM Shop?</p>
     </div>
 
-    <form asp-page="/Account/Logout/Index">
-        <input type="hidden" name="logoutId" value="@Model.LogoutId"  />
-        
-        <div class="form-group">
-            <button class="btn btn-primary">Yes</button>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-question-circle fa-lg me-2"></i>
+                    <h2>Confirmar Saída</h2>
+                </div>
+                
+                <div class="card-body text-center">
+                    <p class="text-muted mb-4">
+                        Você será desconectado e redirecionado para a página inicial.
+                    </p>
+                    
+                    <form asp-page="/Account/Logout/Index" class="d-inline">
+                        <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-out-alt me-2"></i>Sim, Sair
+                            </button>
+                            <a href="/" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
