@@ -19,6 +19,7 @@ import CreateProduct from './pages/CreateProduct';
 import UpdateProduct from './pages/UpdateProduct';
 import DeleteProduct from './pages/DeleteProduct';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Profile from './pages/Profile';
 import './App.css';
 
@@ -50,7 +51,10 @@ function App() {
                   <Link to="/loja" className="nav-link">Loja</Link>
                   
                   {!isAuthenticated ? (
-                    <button onClick={handleLogin} className="nav-link nav-btn">Login</button>
+                    <>
+                      <button onClick={handleLogin} className="nav-link nav-btn">Login</button>
+                      <Link to="/register" className="nav-link nav-btn">Registrar</Link>
+                    </>
                   ) : (
                     <>
                       <span className="nav-user">Olá, {userInfo?.name || userInfo?.preferred_username || 'Usuário'}</span>
@@ -78,6 +82,7 @@ function App() {
                 <Route path="/pedidos" element={<Pedidos />} />
                 <Route path="/produto/:id" element={<ProdutoDetalhes />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/callback" element={<Callback />} />
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -115,7 +120,6 @@ function App() {
                     <Link to="/">Início</Link>
                     <Link to="/loja">Loja</Link>
                     <Link to="/profile">Perfil</Link>
-                    <Link to="/admin">Admin</Link>
                   </div>
                   <div className="footer-section">
                     <h4>Contato</h4>

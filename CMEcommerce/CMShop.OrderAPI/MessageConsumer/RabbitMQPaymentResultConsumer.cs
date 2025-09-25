@@ -135,8 +135,15 @@ namespace CMShop.OrderAPI.MessageConsumer
                 Console.WriteLine($"[ProcessPaymentResult] Status convertido: '{paymentResult.Status}' -> {paymentStatus}");
                 Console.WriteLine($"[ProcessPaymentResult] Atualizando status do pedido {paymentResult.OrderId} para {(paymentStatus ? "APROVADO" : "REJEITADO")}");
                 
+                //Data de compra apenas se o pagamento for aprovado
+                DateTime? purchaseDate = paymentStatus ? DateTime.Now : null;
+                if (paymentStatus)
+                {
+                    Console.WriteLine($"[ProcessPaymentResult] Registrando data de compra: {purchaseDate}");
+                }
+                
                 // Atualizar o status do pagamento no pedido
-                var success = await repository.UpdateOrderPaymentStatus(paymentResult.OrderId, paymentStatus);
+                var success = await repository.UpdateOrderPaymentStatus(paymentResult.OrderId, paymentStatus, purchaseDate);
                 
                 if (success)
                 {

@@ -6,7 +6,7 @@ namespace CMShop.OrderAPI.Repository
     public interface IOrderRepository
     {
         Task<bool> AddOrder(OrderHeader header);
-        Task<bool> UpdateOrderPaymentStatus(long orderId, bool paid);
+        Task<bool> UpdateOrderPaymentStatus(long orderId, bool paid, DateTime? purchaseDate);
         Task<IEnumerable<OrderVO>> FindAllOrders();
         Task<OrderVO?> FindOrderById(long id);
         Task<IEnumerable<OrderVO>> FindOrdersByUserId(string userId);

@@ -65,8 +65,8 @@
                             <label asp-for="Input.PhoneNumber">
                                 <i class="fas fa-phone me-2"></i>Telefone
                             </label>
-                            <input type="tel" class="form-control" placeholder="(00) 00000-0000" asp-for="Input.PhoneNumber">
-                            <small class="form-text text-muted">Opcional - Para contato sobre pedidos</small>
+                            <input type="tel" class="form-control" placeholder="(11) 99999-9999" asp-for="Input.PhoneNumber">
+                            <small class="form-text text-muted">Opcional - Formato: (XX) XXXXX-XXXX</small>
                             <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
                         </div>
                         <div class="row">
@@ -75,8 +75,8 @@
                                     <label asp-for="Input.Password">
                                         <i class="fas fa-lock me-2"></i>Senha
                                     </label>
-                                    <input type="password" class="form-control" placeholder="Digite uma senha segura" asp-for="Input.Password" autocomplete="new-password">
-                                    <small class="form-text text-muted">Mínimo 6 caracteres, com letras e números</small>
+                                    <input type="password" class="form-control" placeholder="Digite uma senha forte" asp-for="Input.Password" autocomplete="new-password">
+                                    <small class="form-text text-muted">Mínimo 8 caracteres com letra maiúscula, minúscula, número e símbolo</small>
                                     <span asp-validation-for="Input.Password" class="text-danger small"></span>
                                 </div>
                             </div>
@@ -131,3 +131,5 @@
         </div>
     </div>
 </div>
+
+<script src="~/js/register-validation.js"></script>

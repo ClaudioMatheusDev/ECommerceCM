@@ -68,6 +68,15 @@ const Login = () => {
                                     <li>✅ <strong>Clientes:</strong> Visualizar produtos</li>
                                     <li>🔒 <strong>Administradores:</strong> Criar, editar e deletar produtos</li>
                                 </ul>
+
+                                <div className="mt-4">
+                                    <p className="text-muted">
+                                        Ainda não tem uma conta? 
+                                        <a href="/register" className="text-decoration-none ms-1">
+                                            <strong>Criar conta agora</strong>
+                                        </a>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

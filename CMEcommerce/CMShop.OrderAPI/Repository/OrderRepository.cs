@@ -25,12 +25,19 @@ namespace CMShop.OrderAPI.Repository
             return true;
         }
 
-        public async Task<bool> UpdateOrderPaymentStatus(long orderHeaderId, bool status)
+        public async Task<bool> UpdateOrderPaymentStatus(long orderHeaderId, bool status, DateTime? purchaseDate)
         {
             var header = await _context.OrderHeaders.FirstOrDefaultAsync(o => o.Id == orderHeaderId);
             if (header != null)
             {
                 header.PaymentStatus = status;
+                
+                // Atualiza a data de compra quando o pagamento for aprovado
+                if (status && purchaseDate.HasValue)
+                {
+                    header.DateTime = purchaseDate.Value;
+                }
+                
                 await _context.SaveChangesAsync();
                 return true;
             }
