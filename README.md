@@ -21,13 +21,9 @@ EcommerceMS/
     ├── IdentityServer/      # Autenticação e gestão de usuários (JWT + IdentityServer)
     ├── CMShop.ProductAPI/   # Gestão de produtos, categorias, estoque e preços
     ├── CMShop.CartAPI/      # Carrinho de compras
-    ├── CMShop.DescontApi/   # Cupons e regras de desconto
-    ├── PedidoApi/           # Processamento e status dos pedidos
-    ├── PagamentoApi/        # Processamento de pagamentos (Pix, Cartão, Boleto)
-    ├── ClienteApi/          # Cadastro, login e informações de clientes
-    ├── EstoqueApi/          # Controle de estoque
-    ├── EntregaApi/          # Cálculo de frete e rastreio de pedidos
-    └── Shared/              # Classes compartilhadas entre os microserviços (DTOs, configs)
+    ├── CMShop.DescontAPI/   # Cupons e regras de desconto
+    ├── CMShop.OrderAPI/     # Processamento e status dos pedidos
+    ├── CMShop.PaymentAPI/   # Processamento de pagamentos (Pix, Cartão, Boleto)
 
 ├── docker/                  # Configurações dos containers
 │   ├── sqlserver/           # Scripts e configs do banco
