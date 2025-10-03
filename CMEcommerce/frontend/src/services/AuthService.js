@@ -33,9 +33,21 @@ class AuthService {
         return `${this.baseUrl}/connect/endsession?${params.toString()}`;
     }
 
+
+    getRegisterUrl() {
+        const params = new URLSearchParams({
+            returnUrl: this.getLoginUrl() 
+        });
+        return `${this.baseUrl}/Account/Create?${params.toString()}`;
+    }
+
     // Redirecionar para login
     login() {
         window.location.href = this.getLoginUrl();
+    }
+    // Redirecionar para registro
+    register() {
+        window.location.href = this.getRegisterUrl();
     }
 
     // Redirecionar para logout
@@ -70,7 +82,7 @@ class AuthService {
             code: code,
             redirect_uri: this.redirectUri,
             client_id: this.clientId,
-            client_secret: 'my_super_secret' // Em produção, use PKCE em vez de client_secret
+            client_secret: 'my_super_secret' 
         });
 
         const response = await fetch(tokenEndpoint, {

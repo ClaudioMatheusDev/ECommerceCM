@@ -1,35 +1,75 @@
 @page
 @model foo.Pages.Error.Index
 
-<div class="error-page">
+<div class="login-page">
     <div class="lead">
-        <h1>Error</h1>
+        <i class="fas fa-exclamation-triangle fa-2x mb-3" style="color: #dc2626;"></i>
+        <h1>Ops! Algo deu errado</h1>
+        <p>Encontramos um problema durante sua solicitação</p>
     </div>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="alert alert-danger">
-                Sorry, there was an error
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+                    <i class="fas fa-bug fa-lg me-2"></i>
+                    <h2>Erro do Sistema</h2>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-danger mb-4" style="border: none; border-radius: 12px;">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-circle fa-lg me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-2">Desculpe, ocorreu um erro durante o processamento</h6>
+                                
+                                @if (Model.View.Error != null)
+                                {
+                                    <strong class="text-dark">
+                                        @Model.View.Error.Error
+                                    </strong>
 
-                @if (Model.View.Error != null)
-                {
-                    <strong>
-                        <em>
-                            : @Model.View.Error.Error
-                        </em>
-                    </strong>
+                                    if (Model.View.Error.ErrorDescription != null)
+                                    {
+                                        <div class="mt-2 text-muted small">
+                                            @Model.View.Error.ErrorDescription
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
 
-                    if (Model.View.Error.ErrorDescription != null)
+                    @if (Model?.View?.Error?.RequestId != null)
                     {
-                        <div>@Model.View.Error.ErrorDescription</div>
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title text-muted">
+                                    <i class="fas fa-info-circle me-2"></i>Informações Técnicas
+                                </h6>
+                                <p class="card-text small text-muted mb-0">
+                                    <strong>ID da Solicitação:</strong> <code>@Model.View.Error.RequestId</code>
+                                </p>
+                            </div>
+                        </div>
                     }
-                }
-            </div>
 
-            @if (Model?.View?.Error?.RequestId != null)
-            {
-                <div class="request-id">Request Id: @Model.View.Error.RequestId</div>
-            }
+                    <div class="form-actions text-center">
+                        <a href="/Account/Login" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-sign-in-alt me-2"></i>Ir para Login
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small">
+                            Se o problema persistir, entre em contato com o suporte técnico.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

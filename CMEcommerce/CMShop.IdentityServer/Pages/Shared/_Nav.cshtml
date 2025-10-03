@@ -9,25 +9,47 @@
 }
 
 <div class="nav-page">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light modern-navbar">
+        <div class="container">
+            <a href="~/" class="navbar-brand nav-logo">
+                <i class="fas fa-store me-2"></i>
+                CM Shop Auth
+            </a>
 
-        <a href="~/" class="navbar-brand">
-            <img src="~/duende-logo.svg" class="icon-banner">
-            Duende IdentityServer
-        </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        @if (!string.IsNullOrWhiteSpace(name))
-        {
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">@name <b class="caret"></b></a>
-                    
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-page="/Account/Logout/Index">Logout</a>
-                    </div>
-              </li>
-            </ul>
-        }
-    
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto nav-links">
+                    @if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle nav-user" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>@name
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-page="/Account/Logout/Index">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link nav-btn" asp-page="/Account/Login/Index">
+                                <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Account/Create/Index">
+                                <i class="fas fa-user-plus me-1"></i>Criar Conta
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
     </nav>
 </div>

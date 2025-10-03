@@ -37,11 +37,8 @@ function Home() {
             Sua loja online completa com os melhores produtos e tecnologia
           </p>
           <div className="hero-buttons">
-            <Link to="/loja" className="hero-button primary">
+            <Link to="/loja" className="hero-button secondary">
               🛍️ Explorar Loja
-            </Link>
-            <Link to="/admin" className="hero-button secondary">
-              ⚙️ Painel Admin
             </Link>
           </div>
         </div>

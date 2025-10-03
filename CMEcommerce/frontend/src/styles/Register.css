@@ -1,0 +1,126 @@
+
+.register-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.register-page .card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.register-page .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 1.5rem;
+}
+
+.register-page .card-body {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.benefit-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.benefit-item:hover {
+    transform: translateY(-5px);
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.benefit-item i {
+    display: block;
+    margin: 0 auto;
+}
+
+.register-page .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.register-page .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.register-page .alert-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+}
+
+.register-page ul li {
+    padding: 0.25rem 0;
+}
+
+.register-page .text-success {
+    color: #28a745 !important;
+}
+
+.register-page .text-warning {
+    color: #ffc107 !important;
+}
+
+.register-page a {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.register-page a:hover {
+    color: #764ba2;
+    text-decoration: underline !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .register-page {
+        padding: 1rem 0;
+    }
+    
+    .register-page .card-body {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .benefit-item {
+        margin-bottom: 1rem;
+    }
+    
+    .register-page .btn-lg {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.register-page .card {
+    animation: fadeInUp 0.6s ease;
+}
+
+.benefit-item {
+    animation: fadeInUp 0.8s ease;
+}
+
+.benefit-item:nth-child(1) { animation-delay: 0.1s; }
+.benefit-item:nth-child(2) { animation-delay: 0.2s; }
+.benefit-item:nth-child(3) { animation-delay: 0.3s; }

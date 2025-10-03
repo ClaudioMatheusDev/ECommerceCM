@@ -175,7 +175,8 @@ namespace CMShop.OrderAPI.Controllers
 
                 _logger.LogInformation("Atualizando status de pagamento do pedido {OrderId} para {PaymentStatus}", id, request.PaymentStatus);
 
-                var success = await _repository.UpdateOrderPaymentStatus(id, request.PaymentStatus);
+                DateTime? purchaseDate = request.PaymentStatus ? DateTime.Now : null;
+                var success = await _repository.UpdateOrderPaymentStatus(id, request.PaymentStatus, purchaseDate);
                 
                 if (!success)
                 {
