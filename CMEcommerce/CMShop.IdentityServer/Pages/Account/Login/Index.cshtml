@@ -3,8 +3,9 @@
 
 <div class="login-page">
     <div class="lead">
-        <h1>Login</h1>
-        <p>Escolha a forma de fazer o login!</p>
+        <i class="fas fa-store fa-2x mb-3" style="color: #667eea;"></i>
+        <h1>Bem-vindo à CM Shop</h1>
+        <p>Faça login para acessar sua conta e continuar suas compras</p>
     </div>
 
     <partial name="_ValidationSummary" />
@@ -13,39 +14,63 @@
 
         @if (Model.View.EnableLocalLogin)
         {
-            <div class="col-sm-6">
+            <div class="col-lg-6 col-md-8 mx-auto">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Local Account</h2>
+                        <i class="fas fa-user-circle fa-lg me-2"></i>
+                        <h2>Entrar na Conta</h2>
                     </div>
 
                     <div class="card-body">
-                        <form asp-page="/Account/Login/Index">
+                        <form asp-page="/Account/Login/Index" method="post">
                             <input type="hidden" asp-for="Input.ReturnUrl" />
 
                             <div class="form-group">
-                                <label asp-for="Input.Username"></label>
-                                <input class="form-control" placeholder="Usuario" asp-for="Input.Username" autofocus>
+                                <label asp-for="Input.Username">
+                                    <i class="fas fa-user me-2"></i>Nome de Usuário
+                                </label>
+                                <input class="form-control" placeholder="Digite seu nome de usuário" asp-for="Input.Username" autofocus>
+                                <span asp-validation-for="Input.Username" class="text-danger small"></span>
                             </div>
+                            
                             <div class="form-group">
-                                <label asp-for="Input.Password"></label>
-                                <input type="password" class="form-control" placeholder="Senha" asp-for="Input.Password" autocomplete="off">
+                                <label asp-for="Input.Password">
+                                    <i class="fas fa-lock me-2"></i>Senha
+                                </label>
+                                <input type="password" class="form-control" placeholder="Digite sua senha" asp-for="Input.Password" autocomplete="current-password">
+                                <span asp-validation-for="Input.Password" class="text-danger small"></span>
                             </div>
                             
                             @if (Model.View.AllowRememberLogin)
                             {
                                 <div class="form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" asp-for="Input.RememberLogin">
-                                        <label class="form-check-label" asp-for="Input.RememberLogin">
-                                            Remember My Login
+                                        <input class="form-check-input" asp-for="Input.RememberLogin" id="rememberLogin">
+                                        <label class="form-check-label" asp-for="Input.RememberLogin" for="rememberLogin">
+                                            <i class="fas fa-memory me-1"></i>Lembrar de mim
                                         </label>
                                     </div>
                                 </div>
                             }
                             
-                            <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
-                            <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                            <div class="form-actions">
+                                <button class="btn btn-primary btn-lg" name="Input.Button" value="login">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                                </button>
+                                <button class="btn btn-secondary" name="Input.Button" value="cancel">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                            </div>
+                            
+                            <div class="mt-4 text-center">
+                                <hr class="my-4">
+                                <p class="text-muted">
+                                    Não tem uma conta? 
+                                    <a href="/Account/Create" class="text-decoration-none fw-bold" style="color: #667eea;">
+                                        <i class="fas fa-user-plus me-1"></i>Criar conta
+                                    </a>
+                                </p>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -54,25 +79,26 @@
 
         @if (Model.View.VisibleExternalProviders.Any())
         {
-            <div class="col-sm-6">
+            <div class="col-lg-6 col-md-8 mx-auto mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2>External Account</h2>
+                        <i class="fas fa-external-link-alt fa-lg me-2"></i>
+                        <h2>Login Externo</h2>
                     </div>
                     <div class="card-body">
-                        <ul class="list-inline">
+                        <p class="text-muted mb-3">Ou entre usando uma dessas opções:</p>
+                        <div class="d-grid gap-2">
                             @foreach (var provider in Model.View.VisibleExternalProviders)
                             {
-                                <li class="list-inline-item">
-                                    <a class="btn btn-secondary"
-                                       asp-page="/ExternalLogin/Challenge"
-                                       asp-route-scheme="@provider.AuthenticationScheme"
-                                       asp-route-returnUrl="@Model.Input.ReturnUrl">
-                                        @provider.DisplayName
-                                    </a>
-                                </li>
+                                <a class="btn btn-outline-primary"
+                                   asp-page="/ExternalLogin/Challenge"
+                                   asp-route-scheme="@provider.AuthenticationScheme"
+                                   asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                    <i class="fab fa-@provider.AuthenticationScheme.ToLower() me-2"></i>
+                                    Entrar com @provider.DisplayName
+                                </a>
                             }
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,9 +106,12 @@
 
         @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
         {
-            <div class="alert alert-warning">
-                <strong>Invalid login request</strong>
-                There are no login schemes configured for this request.
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Solicitação de login inválida</strong>
+                    <br>Não há esquemas de login configurados para esta solicitação.
+                </div>
             </div>
         }
     </div>

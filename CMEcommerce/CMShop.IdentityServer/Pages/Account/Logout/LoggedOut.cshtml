@@ -1,19 +1,53 @@
 @page
 @model foo.Pages.Logout.LoggedOut
 
-<div class="logged-out-page">
-    <h1>
-        Logout
-        <small>You are now logged out</small>
-    </h1>
+<div class="login-page">
+    <div class="lead">
+        <i class="fas fa-check-circle fa-2x mb-3" style="color: #10b981;"></i>
+        <h1>Saída Realizada</h1>
+        <p>Você foi desconectado da CM Shop com sucesso</p>
+    </div>
 
-    @if (Model.View.PostLogoutRedirectUri != null)
-    {
-        <div>
-            Click <a class="PostLogoutRedirectUri" href="@Model.View.PostLogoutRedirectUri">here</a> to return to the
-            <span>@Model.View.ClientName</span> application.
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-shield-check fa-lg me-2"></i>
+                    <h2>Logout Concluído</h2>
+                </div>
+                
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-check fa-3x mb-3" style="color: #10b981; opacity: 0.7;"></i>
+                        <p class="text-muted">
+                            Sua sessão foi encerrada com segurança. Obrigado por usar a CM Shop!
+                        </p>
+                    </div>
+
+                    @if (Model.View.PostLogoutRedirectUri != null)
+                    {
+                        <div class="mb-4">
+                            <a class="btn btn-primary btn-lg PostLogoutRedirectUri" href="@Model.View.PostLogoutRedirectUri">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Voltar para @Model.View.ClientName
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-primary btn-lg" href="/Account/Login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Fazer Login Novamente
+                            </a>
+                            <a class="btn btn-outline-primary" href="/">
+                                <i class="fas fa-home me-2"></i>Ir para Página Inicial
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-    }
+    </div>
 
     @if (Model.View.SignOutIframeUrl != null)
     {
